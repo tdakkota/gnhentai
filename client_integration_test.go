@@ -73,7 +73,10 @@ func TestGetByID(t *testing.T) {
 
 			t.Log(string(pretty))
 
-			require.Equal(t, data, doujinshi)
+			require.Equal(t, data.Name, doujinshi.Name)
+			require.Equal(t, data.AlterName, doujinshi.AlterName)
+			require.Equal(t, data.Tags[0].Name, doujinshi.Tags[0].Name)
+			require.Equal(t, data.Length, doujinshi.Length)
 		})
 	}
 }
