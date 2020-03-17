@@ -59,21 +59,21 @@ func TestGetByID(t *testing.T) {
 		t.Run(id, func(t *testing.T) {
 			c := NewClient()
 
-			h, err := c.ByID(numberID)
+			doujinshi, err := c.ByID(numberID)
 			if err != nil {
 				t.Error(err)
 				return
 			}
 
-			d, err := json.MarshalIndent(h, "", "\t")
+			pretty, err := json.MarshalIndent(doujinshi, "", "\t")
 			if err != nil {
 				t.Error(err)
 				return
 			}
 
-			t.Log(string(d))
+			t.Log(string(pretty))
 
-			require.Equal(t, data, d)
+			require.Equal(t, data, doujinshi)
 		})
 	}
 }
