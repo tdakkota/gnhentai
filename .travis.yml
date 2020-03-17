@@ -1,0 +1,27 @@
+language: go
+
+go:
+  - "tip"
+  - "1.13"
+  - "1.14"
+  - "1.x"
+
+matrix:
+  allow_failures:
+    - go: "tip"
+  fast_finish: true
+
+cache:
+  directories:
+    - $HOME/.cache/go-build
+    - $HOME/gopath/pkg/mod
+
+before_script:
+  - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.23.6
+
+script:
+  - golangci-lint run
+  - go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
