@@ -54,6 +54,17 @@ func parse(doc *goquery.Document) (result Doujinshi, err error) {
 
 var ErrNoID = errors.New("no ID to parse")
 
+func absoluteBaseLink(a *goquery.Selection) (string, bool) {
+	if link, ok := a.Attr("href"); ok {
+		link = strings.TrimSpace(link)
+		if strings.Index(link, BaseNHentaiLink) != 0 {
+			link = BaseNHentaiLink + link
+		}
+		return link, true
+	}
+	return "", false
+}
+
 func parseBaseTag(link *goquery.Selection) (result BaseTag, err error) {
 	countNode := link.Find(".count").First()
 
@@ -65,10 +76,7 @@ func parseBaseTag(link *goquery.Selection) (result BaseTag, err error) {
 	countNode.Remove()
 
 	result.Name = strings.TrimSpace(link.Text())
-	if tagLink, ok := link.Attr("href"); ok {
-		if strings.Index(tagLink, BaseNHentaiLink) != 0 {
-			tagLink = BaseNHentaiLink + tagLink
-		}
+	if tagLink, ok := absoluteBaseLink(link); ok {
 		result.Link = tagLink
 	}
 
@@ -139,7 +147,7 @@ func parsePreviews(container *goquery.Selection) (Previews, int, error) {
 	thumbs.EachWithBreak(func(i int, selection *goquery.Selection) bool {
 		preview := Preview{Number: i + 1}
 
-		if link, ok := selection.Attr("href"); ok {
+		if link, ok := absoluteBaseLink(selection); ok {
 			preview.Link = link
 			if mediaID == 0 {
 				_, err = fmt.Sscanf(link, "https://nhentai.net/g/%d/%d/", &mediaID, &preview.Number)
