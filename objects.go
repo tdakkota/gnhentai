@@ -1,7 +1,6 @@
 package gnhentai
 
 import (
-	"fmt"
 	"time"
 )
 
@@ -50,36 +49,4 @@ type Doujinshi struct {
 	NumFavorites int       `json:"num_favorites"`
 	UploadDate   time.Time `json:"upload_date"`
 	Images       Images    `json:"images"`
-}
-
-func (d Doujinshi) Thumbnail(n int) string {
-	return ThumbnailLink(d.MediaID, n)
-}
-
-func (d Doujinshi) Image(n int) string {
-	return ImageLink(d.MediaID, n)
-}
-
-func (d Doujinshi) Page(n int) string {
-	return PageLink(d.ID, n)
-}
-
-func (d Doujinshi) MainPage() string {
-	return MainPageLink(d.ID)
-}
-
-func ThumbnailLink(mediaID, n int) string {
-	return fmt.Sprintf("https://t.nhentai.net/galleries/%d/%dt.jpg", mediaID, n)
-}
-
-func ImageLink(mediaID, n int) string {
-	return fmt.Sprintf("https://i.nhentai.net/galleries/%d/%d.jpg", mediaID, n)
-}
-
-func PageLink(ID, n int) string {
-	return fmt.Sprintf("https://nhentai.net/g/%d/%d/", ID, n)
-}
-
-func MainPageLink(ID int) string {
-	return fmt.Sprintf("https://nhentai.net/g/%d", ID)
 }

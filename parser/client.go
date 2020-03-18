@@ -79,7 +79,7 @@ func (c *Parser) requestSearch(url string) ([]gnhentai.Doujinshi, error) {
 	return ParseSearch(r)
 }
 
-func (c *Parser) Related(d gnhentai.Doujinshi) ([]gnhentai.Doujinshi, error) {
+func (c *Parser) Related(id int) ([]gnhentai.Doujinshi, error) {
 	return nil, nil
 }
 

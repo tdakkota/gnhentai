@@ -8,11 +8,11 @@ type Client interface {
 
 	Search(q string, page int) ([]Doujinshi, error)
 	SearchByTag(tag string, page int) ([]Doujinshi, error)
-	Related(d Doujinshi) ([]Doujinshi, error)
+	Related(id int) ([]Doujinshi, error)
 }
 
 type Downloader interface {
-	Page(doujinshiID, n int) (io.ReadCloser, error)
-	Cover(doujinshiID int) (io.ReadCloser, error)
-	Thumbnail(doujinshiID int) (io.ReadCloser, error)
+	Page(mediaID, n int) (io.ReadCloser, error)
+	Thumbnail(mediaID int, n int) (io.ReadCloser, error)
+	Cover(mediaID int) (io.ReadCloser, error)
 }

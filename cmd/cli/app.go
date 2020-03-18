@@ -8,10 +8,12 @@ import (
 	"github.com/urfave/cli/v2"
 	"log"
 	"os"
+	"path/filepath"
+	"strconv"
 )
 
 type App struct {
-	client *parser.Parser
+	client gnhentai.Client
 }
 
 func NewApp() *App {
@@ -58,14 +60,50 @@ func (app *App) get(c *cli.Context) error {
 	return nil
 }
 
+func (app *App) download(c *cli.Context) (err error) {
+	id, dir := c.Int("id"), c.String("dir")
+
+	var doujinshi gnhentai.Doujinshi
+	if id != 0 {
+		doujinshi, err = app.client.ByID(id)
+	} else {
+		doujinshi, err = app.client.Random()
+	}
+	if err != nil {
+		return err
+	}
+
+	id = doujinshi.ID
+	if dir == "" {
+		dir = strconv.Itoa(id)
+	}
+
+	d := gnhentai.NewSimpleDownloader(nil)
+	err = gnhentai.DownloadAll(d, doujinshi, func(i int, d gnhentai.Doujinshi) string {
+		return filepath.Join(dir, fmt.Sprintf("%d.jpg", i))
+	})
+	if err != nil {
+		return err
+	}
+
+	err = prettyPrint(doujinshi)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (app *App) commands() []*cli.Command {
 	return []*cli.Command{
 		{
-			Name:   "random",
-			Action: app.random,
+			Name:        "random",
+			Description: "returns metadata of random doujinshi",
+			Action:      app.random,
 		},
 		{
-			Name: "get",
+			Name:        "get",
+			Description: "returns metadata of doujinshi by given id",
 			Flags: []cli.Flag{
 				&cli.IntFlag{
 					Name:  "id",
@@ -73,6 +111,21 @@ func (app *App) commands() []*cli.Command {
 				},
 			},
 			Action: app.get,
+		},
+		{
+			Name:        "download",
+			Description: "downloads pages to directory",
+			Flags: []cli.Flag{
+				&cli.IntFlag{
+					Name:  "id",
+					Usage: "id of doujinshi",
+				},
+				&cli.StringFlag{
+					Name:  "dir",
+					Usage: "output directory",
+				},
+			},
+			Action: app.download,
 		},
 	}
 }
