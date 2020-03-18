@@ -64,7 +64,7 @@ func parseComic(doc *goquery.Selection) (result gnhentai.Doujinshi, err error) {
 	}
 
 	if link, ok := absoluteBaseLink(doc.Find("#cover a img"), "data-src"); ok {
-		_, err = fmt.Sscanf(link, "https://t.nhentai.net/galleries/%d/cover.jpg", &result.MediaID)
+		_, err = fmt.Sscanf(link, "https://t.nhentai.net/galleries/%d/cover", &result.MediaID)
 		if err != nil {
 			return result, fmt.Errorf("failed to parse cover link in '%s': %v", link, err)
 		}
@@ -201,7 +201,7 @@ func parseGallery(gallery *goquery.Selection) (result gnhentai.Doujinshi, err er
 	}
 
 	if link, ok := absoluteBaseLink(gallery.Find("img").First(), "data-src"); ok {
-		_, err = fmt.Sscanf(link, "https://t.nhentai.net/galleries/%d/thumb.jpg", &result.MediaID)
+		_, err = fmt.Sscanf(link, "https://t.nhentai.net/galleries/%d/thumb", &result.MediaID)
 		if err != nil {
 			return result, fmt.Errorf("failed to parse cover link in '%s': %v", link, err)
 		}
