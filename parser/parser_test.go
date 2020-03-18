@@ -132,7 +132,42 @@ func TestParse(t *testing.T) {
 				return
 			}
 
-			r, err := parse(doc)
+			r, err := parseComic(doc.Selection)
+			if err != nil {
+				t.Error(err)
+				return
+			}
+
+			d, err := json.MarshalIndent(r, "", "\t")
+			if err != nil {
+				t.Error(err)
+				return
+			}
+
+			t.Log(string(d))
+		})
+	}
+}
+
+func TestSearchParse(t *testing.T) {
+	files := map[string][]gnhentai.Doujinshi{
+		"../testdata/test3.html": nil,
+	}
+
+	for fileName := range files {
+		t.Run(fileName, func(t *testing.T) {
+			f, err := os.Open(fileName)
+			if err != nil {
+				t.Error(err)
+				return
+			}
+
+			doc, err := goquery.NewDocumentFromReader(f)
+			if err != nil {
+				return
+			}
+
+			r, err := parseSearch(doc.Selection)
 			if err != nil {
 				t.Error(err)
 				return

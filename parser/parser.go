@@ -10,15 +10,15 @@ import (
 	"time"
 )
 
-func Parse(r io.Reader) (result gnhentai.Doujinshi, err error) {
+func ParseComic(r io.Reader) (gnhentai.Doujinshi, error) {
 	doc, err := goquery.NewDocumentFromReader(r)
 	if err != nil {
-		return
+		return gnhentai.Doujinshi{}, err
 	}
-	return parse(doc)
+	return parseComic(doc.Selection)
 }
 
-func parse(doc *goquery.Document) (result gnhentai.Doujinshi, err error) {
+func parseComic(doc *goquery.Selection) (result gnhentai.Doujinshi, err error) {
 	infoBlock := doc.Find("#info")
 	result.Title.English = infoBlock.Find("h1").First().Text()
 	result.Title.Japanese = infoBlock.Find("h2").First().Text()
@@ -155,4 +155,59 @@ func mapTagType(name string) (string, error) {
 	default:
 		return "", fmt.Errorf("unknown tag type: %s", name)
 	}
+}
+
+func ParseSearch(r io.Reader) ([]gnhentai.Doujinshi, error) {
+	doc, err := goquery.NewDocumentFromReader(r)
+	if err != nil {
+		return nil, err
+	}
+	return parseSearch(doc.Selection)
+}
+
+func ParseRelated(r io.Reader) ([]gnhentai.Doujinshi, error) {
+	doc, err := goquery.NewDocumentFromReader(r)
+	if err != nil {
+		return nil, err
+	}
+	return parseSearch(doc.Find("#related-container"))
+}
+
+func parseSearch(doc *goquery.Selection) (result []gnhentai.Doujinshi, err error) {
+	galleries := doc.Find(".gallery")
+	result = make([]gnhentai.Doujinshi, 0, galleries.Length())
+
+	galleries.EachWithBreak(func(i int, gallery *goquery.Selection) bool {
+		var doujinshi gnhentai.Doujinshi
+
+		doujinshi, err = parseGallery(gallery)
+		if err != nil {
+			return false
+		}
+
+		result = append(result, doujinshi)
+		return true
+	})
+
+	return result, nil
+}
+
+func parseGallery(gallery *goquery.Selection) (result gnhentai.Doujinshi, err error) {
+	if link, ok := absoluteBaseLink(gallery.Find("a").First(), "href"); ok {
+		_, err = fmt.Sscanf(link, "https://nhentai.net/g/%d/", &result.ID)
+		if err != nil {
+			return result, fmt.Errorf("failed to parse doujinshi link in '%s': %v", link, err)
+		}
+	}
+
+	if link, ok := absoluteBaseLink(gallery.Find("img").First(), "data-src"); ok {
+		_, err = fmt.Sscanf(link, "https://t.nhentai.net/galleries/%d/thumb.jpg", &result.MediaID)
+		if err != nil {
+			return result, fmt.Errorf("failed to parse cover link in '%s': %v", link, err)
+		}
+	}
+
+	result.Title.English = gallery.Find(".caption").First().Text()
+	result.Title.Japanese = result.Title.English
+	return
 }
