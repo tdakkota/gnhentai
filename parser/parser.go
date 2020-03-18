@@ -55,9 +55,16 @@ func parse(doc *goquery.Document) (result gnhentai.Doujinshi, err error) {
 		return true
 	})
 
-	if link, ok := absoluteBaseLink(doc.Find("#cover a")); ok {
+	if link, ok := absoluteBaseLink(doc.Find("#cover a"), "href"); ok {
 		var n int
-		_, err = fmt.Sscanf(link, "https://nhentai.net/g/%d/%d/", &result.MediaID, &n)
+		_, err = fmt.Sscanf(link, "https://nhentai.net/g/%d/%d/", &result.ID, &n)
+		if err != nil {
+			return result, fmt.Errorf("failed to parse cover link in '%s': %v", link, err)
+		}
+	}
+
+	if link, ok := absoluteBaseLink(doc.Find("#cover a img"), "data-src"); ok {
+		_, err = fmt.Sscanf(link, "https://t.nhentai.net/galleries/%d/cover.jpg", &result.MediaID)
 		if err != nil {
 			return result, fmt.Errorf("failed to parse cover link in '%s': %v", link, err)
 		}
@@ -68,10 +75,10 @@ func parse(doc *goquery.Document) (result gnhentai.Doujinshi, err error) {
 
 var ErrNoID = errors.New("no ID to parse")
 
-func absoluteBaseLink(a *goquery.Selection) (string, bool) {
-	if link, ok := a.Attr("href"); ok {
+func absoluteBaseLink(a *goquery.Selection, attrName string) (string, bool) {
+	if link, ok := a.Attr(attrName); ok {
 		link = strings.TrimSpace(link)
-		if strings.Index(link, gnhentai.BaseNHentaiLink) != 0 {
+		if strings.Index(link, "https://") != 0 {
 			link = gnhentai.BaseNHentaiLink + link
 		}
 		return link, true
@@ -90,7 +97,7 @@ func parseTag(link *goquery.Selection) (result gnhentai.Tag, err error) {
 	countNode.Remove()
 
 	result.Name = strings.TrimSpace(link.Text())
-	if tagLink, ok := absoluteBaseLink(link); ok {
+	if tagLink, ok := absoluteBaseLink(link, "href"); ok {
 		result.URL = tagLink
 	}
 

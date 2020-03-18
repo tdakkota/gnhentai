@@ -115,8 +115,8 @@ func Test_parseTags(t *testing.T) {
 
 func TestParse(t *testing.T) {
 	files := map[string]gnhentai.Doujinshi{
-		"testdata/test.html":  {},
-		"testdata/test2.html": {},
+		"../testdata/test.html":  {},
+		"../testdata/test2.html": {},
 	}
 
 	for fileName := range files {

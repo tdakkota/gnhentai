@@ -1,73 +1,93 @@
 {
   "305329": {
-    "Name": "[Noah] Lucky Guy Ch.2/? [English] [Hentai Universe]",
-    "AlterName": "[Noah] Lucky Guy Ch.2/? [English] [Hentai Universe]",
-    "Parodies": [],
-    "Characters": [],
-    "Tags": [
+    "id": 305329,
+    "media_id": 1590084,
+    "name": {
+      "english": "[Noah] Lucky Guy Ch.2/? [English] [Hentai Universe]",
+      "japanese": "[Noah] Lucky Guy Ch.2/? [English] [Hentai Universe]",
+      "pretty": ""
+    },
+    "tags": [
       {
-        "ID": 2937,
-        "Count": 101029,
-        "Name": "big breasts",
-        "Link": "https://nhentai.net/tag/big-breasts/"
+        "id": 2937,
+        "type": "tag",
+        "name": "big breasts",
+        "url": "https://nhentai.net/tag/big-breasts/",
+        "count": 101029
       },
       {
-        "ID": 20905,
-        "Count": 31918,
-        "Name": "full color",
-        "Link": "https://nhentai.net/tag/full-color/"
+        "id": 20905,
+        "type": "tag",
+        "name": "full color",
+        "url": "https://nhentai.net/tag/full-color/",
+        "count": 31918
       },
       {
-        "ID": 8368,
-        "Count": 16230,
-        "Name": "full censorship",
-        "Link": "https://nhentai.net/tag/full-censorship/"
+        "id": 8368,
+        "type": "tag",
+        "name": "full censorship",
+        "url": "https://nhentai.net/tag/full-censorship/",
+        "count": 16230
       },
       {
-        "ID": 9083,
-        "Count": 9317,
-        "Name": "big ass",
-        "Link": "https://nhentai.net/tag/big-ass/"
+        "id": 9083,
+        "type": "tag",
+        "name": "big ass",
+        "url": "https://nhentai.net/tag/big-ass/",
+        "count": 9317
       },
       {
-        "ID": 50585,
-        "Count": 1618,
-        "Name": "webtoon",
-        "Link": "https://nhentai.net/tag/webtoon/"
+        "id": 50585,
+        "type": "tag",
+        "name": "webtoon",
+        "url": "https://nhentai.net/tag/webtoon/",
+        "count": 1618
+      },
+      {
+        "id": 86571,
+        "type": "artist",
+        "name": "noah",
+        "url": "https://nhentai.net/artist/noah/",
+        "count": 4
+      },
+      {
+        "id": 17249,
+        "type": "language",
+        "name": "translated",
+        "url": "https://nhentai.net/language/translated/",
+        "count": 106612
+      },
+      {
+        "id": 12227,
+        "type": "language",
+        "name": "english",
+        "url": "https://nhentai.net/language/english/",
+        "count": 67798
+      },
+      {
+        "id": 33173,
+        "type": "category",
+        "name": "manga",
+        "url": "https://nhentai.net/category/manga/",
+        "count": 75771
       }
     ],
-    "Artists": [
-      {
-        "ID": 86571,
-        "Count": 4,
-        "Name": "noah",
-        "Link": "https://nhentai.net/artist/noah/"
-      }
-    ],
-    "Groups": [],
-    "Languages": [
-      {
-        "ID": 17249,
-        "Count": 106612,
-        "Name": "translated",
-        "Link": "https://nhentai.net/language/translated/"
+    "scanlator": "",
+    "num_pages": 0,
+    "num_favorites": 0,
+    "upload_date": "2020-03-16T07:26:26.647037Z",
+    "images": {
+      "pages": null,
+      "cover": {
+        "t": "",
+        "w": 0,
+        "h": 0
       },
-      {
-        "ID": 12227,
-        "Count": 67798,
-        "Name": "english",
-        "Link": "https://nhentai.net/language/english/"
+      "thumbnail": {
+        "t": "",
+        "w": 0,
+        "h": 0
       }
-    ],
-    "Categories": [
-      {
-        "ID": 33173,
-        "Count": 75771,
-        "Name": "manga",
-        "Link": "https://nhentai.net/category/manga/"
-      }
-    ],
-    "Length": 0,
-    "Uploaded": "2020-03-16T07:26:26.647037Z"
+    }
   }
 }

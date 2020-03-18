@@ -35,7 +35,7 @@ func TestGetByID(t *testing.T) {
 		t.Skip("skipping integration test")
 	}
 
-	dataFile, err := os.Open("testdata/integration.json")
+	dataFile, err := os.Open("../testdata/integration.json")
 	if err != nil {
 		t.Error(err)
 		return
