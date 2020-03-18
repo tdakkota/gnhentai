@@ -23,8 +23,8 @@ script:
   - golangci-lint run
   - go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
   # test cli client
-  - go run cmd/cli/app.go random
-  - go run cmd/cli/app.go download --id=305632
+  - go run cmd/gnhentai-cli/app.go random
+  - go run cmd/gnhentai-cli/app.go download --id=305632
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)

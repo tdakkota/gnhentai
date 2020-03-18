@@ -19,3 +19,19 @@ This library is packaged using [Go modules][go-modules]. You can get it via:
 ```
 go get github.com/tdakkota/gnhentai
 ```
+
+## Use as app
+Install and run (`GOBIN` should be int `PATH`)
+
+```
+gnhentai-cli download 
+```
+
+or
+
+```
+gnhentai-cli download --id=<your_manga_id>
+```
+
+
+[go-modules]: https://github.com/golang/go/wiki/Modules
