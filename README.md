@@ -3,6 +3,7 @@
 <p align="center">gnhentai — nhentai.net parser for Go.</p>
 <p align="center">
     <a href="https://travis-ci.org/github/tdakkota/gnhentai"><img src="https://travis-ci.org/tdakkota/gnhentai.svg?branch=master"></a>
+    <a href="https://codecov.io/gh/tdakkota/gnhentai"><img src="https://codecov.io/gh/tdakkota/gnhentai/branch/master/graph/badge.svg" /> </a>
 	<a href="https://goreportcard.com/report/github.com/tdakkota/gnhentai"><img src="https://goreportcard.com/badge/github.com/tdakkota/gnhentai"></a>
 	<a href="https://www.codefactor.io/repository/github/tdakkota/gnhentai"><img src="https://www.codefactor.io/repository/github/tdakkota/gnhentai/badge"></a>
 	<a href="https://godoc.org/github.com/tdakkota/gnhentai"><img src="https://godoc.org/github.com/tdakkota/gnhentai?status.svg"></a>
