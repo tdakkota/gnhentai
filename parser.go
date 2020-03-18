@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -43,7 +44,12 @@ func parse(doc *goquery.Document) (result Doujinshi, err error) {
 		return true
 	})
 
-	return result, err
+	result.Previews, result.MediaID, err = parsePreviews(doc.Find("#thumbnail-container").First())
+	if err != nil {
+		return result, err
+	}
+
+	return result, nil
 }
 
 var ErrNoID = errors.New("no ID to parse")
@@ -121,4 +127,46 @@ func mapTagType(result *Doujinshi, name string, tags []BaseTag) error {
 	}
 
 	return nil
+}
+
+func parsePreviews(container *goquery.Selection) (Previews, int, error) {
+	thumbs := container.Find(".gallerythumb")
+
+	result := make(Previews, 0, thumbs.Length())
+	mediaID := 0
+	var err error
+
+	thumbs.EachWithBreak(func(i int, selection *goquery.Selection) bool {
+		preview := Preview{Number: i + 1}
+
+		if link, ok := selection.Attr("href"); ok {
+			preview.Link = link
+			if mediaID == 0 {
+				_, err = fmt.Sscanf(link, "https://nhentai.net/g/%d/%d/", &mediaID, &preview.Number)
+				if err != nil {
+					err = fmt.Errorf("failed to parse thumb %d link in '%s': %v", i+1, link, err)
+					return false
+				}
+			}
+		}
+
+		img := selection.Find("img").First()
+
+		if link, ok := img.Attr("data-src"); ok {
+			preview.Thumbnail.Link = link
+		}
+
+		if preview.Thumbnail.Width, err = strconv.Atoi(img.AttrOr("width", "0")); err != nil {
+			return false
+		}
+
+		if preview.Thumbnail.Height, err = strconv.Atoi(img.AttrOr("height", "0")); err != nil {
+			return false
+		}
+
+		result = append(result, preview)
+		return true
+	})
+
+	return result, mediaID, err
 }

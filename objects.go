@@ -23,15 +23,31 @@ type Group = BaseTag
 type Category = BaseTag
 type Language = BaseTag
 
+type Image struct {
+	Link   string
+	Width  int
+	Height int
+}
+
+type Preview struct {
+	Number    int
+	Link      string
+	Thumbnail Image
+}
+
+type Previews []Preview
+
 type Doujinshi struct {
 	// ID is unique identification number of Doujinshi.
 	// Note: parser does not parse ID of Doujinshi.
-	ID int
+	ID      int
+	MediaID int
 	// Name is pretty english name
 	Name string
 	// AlterName is original name
 	AlterName string
 
+	// Tags.
 	Parodies   []Parody
 	Characters []Character
 	Tags       []Tag
@@ -39,6 +55,9 @@ type Doujinshi struct {
 	Groups     []Group
 	Languages  []Language
 	Categories []Category
+
+	// Previews is slice of pages previews.
+	Previews Previews
 
 	// Length is number of manga pages.
 	Length   int

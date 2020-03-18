@@ -147,3 +147,40 @@ func TestParse(t *testing.T) {
 		})
 	}
 }
+
+func Test_parsePreviews(t *testing.T) {
+	files := map[string]Doujinshi{
+		"testdata/test.html":  {},
+		"testdata/test2.html": {},
+	}
+
+	for fileName := range files {
+		t.Run(fileName, func(t *testing.T) {
+			f, err := os.Open(fileName)
+			if err != nil {
+				t.Error(err)
+				return
+			}
+
+			doc, err := goquery.NewDocumentFromReader(f)
+			if err != nil {
+				return
+			}
+
+			r, mediaID, err := parsePreviews(doc.Find("#thumbnail-container").First())
+			if err != nil {
+				t.Error(err)
+				return
+			}
+
+			d, err := json.MarshalIndent(r, "", "\t")
+			if err != nil {
+				t.Error(err)
+				return
+			}
+
+			t.Log(mediaID)
+			t.Log(string(d))
+		})
+	}
+}
