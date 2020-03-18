@@ -4,18 +4,19 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/tdakkota/gnhentai"
+	"github.com/tdakkota/gnhentai/parser"
 	"github.com/urfave/cli/v2"
 	"log"
 	"os"
 )
 
 type App struct {
-	client *gnhentai.Client
+	client *parser.Parser
 }
 
 func NewApp() *App {
 	return &App{
-		client: gnhentai.NewClient(),
+		client: parser.NewClient(),
 	}
 }
 

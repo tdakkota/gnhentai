@@ -1,8 +1,9 @@
-package gnhentai
+package parser
 
 import (
 	"encoding/json"
 	"github.com/stretchr/testify/require"
+	"github.com/tdakkota/gnhentai"
 	"os"
 	"strconv"
 	"testing"
@@ -41,7 +42,7 @@ func TestGetByID(t *testing.T) {
 	}
 	defer dataFile.Close()
 
-	var testData map[string]Doujinshi
+	var testData map[string]gnhentai.Doujinshi
 	err = json.NewDecoder(dataFile).Decode(&testData)
 	if err != nil {
 		t.Error(err)
@@ -73,10 +74,11 @@ func TestGetByID(t *testing.T) {
 
 			t.Log(string(pretty))
 
-			require.Equal(t, data.Name, doujinshi.Name)
-			require.Equal(t, data.AlterName, doujinshi.AlterName)
+			require.Equal(t, data.Title.Pretty, doujinshi.Title.Pretty)
+			require.Equal(t, data.Title.English, doujinshi.Title.English)
+			require.Equal(t, data.Title.Japanese, doujinshi.Title.Japanese)
 			require.Equal(t, data.Tags[0].Name, doujinshi.Tags[0].Name)
-			require.Equal(t, data.Length, doujinshi.Length)
+			require.Equal(t, data.NumPages, doujinshi.NumPages)
 		})
 	}
 }

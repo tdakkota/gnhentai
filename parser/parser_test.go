@@ -1,22 +1,23 @@
-package gnhentai
+package parser
 
 import (
 	"bytes"
 	"encoding/json"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/stretchr/testify/require"
+	"github.com/tdakkota/gnhentai"
 	"os"
 	"strconv"
 	"testing"
 )
 
 func Test_parseBaseTag(t *testing.T) {
-	data := map[string]BaseTag{
+	data := map[string]gnhentai.Tag{
 		`<a href="/group/applique/" class="tag tag-109391 ">applique <span class="count">(2)</span></a>`: {
 			ID:    109391,
 			Count: 2,
 			Name:  "applique",
-			Link:  "https://nhentai.net/group/applique/",
+			URL:   "https://nhentai.net/group/applique/",
 		},
 	}
 
@@ -30,7 +31,7 @@ func Test_parseBaseTag(t *testing.T) {
 				return
 			}
 
-			tag, err := parseBaseTag(doc.Find("a"))
+			tag, err := parseTag(doc.Find("a"))
 			if err != nil {
 				t.Error(err)
 				return
@@ -44,7 +45,7 @@ func Test_parseBaseTag(t *testing.T) {
 }
 
 func Test_parseTags(t *testing.T) {
-	data := map[string][]BaseTag{
+	data := map[string][]gnhentai.Tag{
 		`<span class="tags">
 			<a href="/tag/big-breasts/" class="tag tag-2937 ">big breasts <span class="count">(101,029)</span></a>
 			<a href="/tag/full-color/" class="tag tag-20905 ">full color <span class="count">(31,918)</span></a>
@@ -56,31 +57,31 @@ func Test_parseTags(t *testing.T) {
 				ID:    2937,
 				Count: 101029,
 				Name:  "big breasts",
-				Link:  "https://nhentai.net/tag/big-breasts/",
+				URL:   "https://nhentai.net/tag/big-breasts/",
 			},
 			{
 				ID:    20905,
 				Count: 31918,
 				Name:  "full color",
-				Link:  "https://nhentai.net/tag/full-color/",
+				URL:   "https://nhentai.net/tag/full-color/",
 			},
 			{
 				ID:    8368,
 				Count: 16230,
 				Name:  "full censorship",
-				Link:  "https://nhentai.net/tag/full-censorship/",
+				URL:   "https://nhentai.net/tag/full-censorship/",
 			},
 			{
 				ID:    9083,
 				Count: 9317,
 				Name:  "big ass",
-				Link:  "https://nhentai.net/tag/big-ass/",
+				URL:   "https://nhentai.net/tag/big-ass/",
 			},
 			{
 				ID:    50585,
 				Count: 1618,
 				Name:  "webtoon",
-				Link:  "https://nhentai.net/tag/webtoon/",
+				URL:   "https://nhentai.net/tag/webtoon/",
 			},
 		},
 	}
@@ -95,7 +96,7 @@ func Test_parseTags(t *testing.T) {
 				return
 			}
 
-			tags, err := parseBaseTags(doc.Find(".tags"))
+			tags, err := parseTags("", doc.Find(".tags"))
 			if err != nil {
 				t.Error(err)
 				return
@@ -113,7 +114,7 @@ func Test_parseTags(t *testing.T) {
 }
 
 func TestParse(t *testing.T) {
-	files := map[string]Doujinshi{
+	files := map[string]gnhentai.Doujinshi{
 		"testdata/test.html":  {},
 		"testdata/test2.html": {},
 	}
@@ -143,43 +144,6 @@ func TestParse(t *testing.T) {
 				return
 			}
 
-			t.Log(string(d))
-		})
-	}
-}
-
-func Test_parsePreviews(t *testing.T) {
-	files := map[string]Doujinshi{
-		"testdata/test.html":  {},
-		"testdata/test2.html": {},
-	}
-
-	for fileName := range files {
-		t.Run(fileName, func(t *testing.T) {
-			f, err := os.Open(fileName)
-			if err != nil {
-				t.Error(err)
-				return
-			}
-
-			doc, err := goquery.NewDocumentFromReader(f)
-			if err != nil {
-				return
-			}
-
-			r, mediaID, err := parsePreviews(doc.Find("#thumbnail-container").First())
-			if err != nil {
-				t.Error(err)
-				return
-			}
-
-			d, err := json.MarshalIndent(r, "", "\t")
-			if err != nil {
-				t.Error(err)
-				return
-			}
-
-			t.Log(mediaID)
 			t.Log(string(d))
 		})
 	}
