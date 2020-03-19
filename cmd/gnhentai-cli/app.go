@@ -18,7 +18,7 @@ type App struct {
 
 func NewApp() *App {
 	return &App{
-		client: parser.NewClient(),
+		client: parser.NewParser(),
 	}
 }
 

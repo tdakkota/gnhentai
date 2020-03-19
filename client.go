@@ -7,7 +7,7 @@ type Client interface {
 	Random() (Doujinshi, error)
 
 	Search(q string, page int) ([]Doujinshi, error)
-	SearchByTag(tag string, page int) ([]Doujinshi, error)
+	SearchByTag(tag Tag, page int) ([]Doujinshi, error)
 	Related(id int) ([]Doujinshi, error)
 }
 
