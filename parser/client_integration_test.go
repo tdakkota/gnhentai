@@ -108,6 +108,17 @@ func TestSearchByTag(t *testing.T) {
 
 		t.Log(string(d))
 	})
+
+	t.Run("tag-does-not-exists", func(t *testing.T) {
+		c := NewClient()
+		_, err := c.SearchByTag("lolkek", 0)
+		if err == nil {
+			t.Error("tag does not exists - should return error")
+			return
+		} else {
+			t.Log(err)
+		}
+	})
 }
 
 func TestGetByID(t *testing.T) {
@@ -161,4 +172,21 @@ func TestGetByID(t *testing.T) {
 			require.Equal(t, data.NumPages, doujinshi.NumPages)
 		})
 	}
+}
+
+func TestGetByID2(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
+
+	t.Run("id-does-not-exists", func(t *testing.T) {
+		c := NewClient()
+		_, err := c.ByID(-100500)
+		if err == nil {
+			t.Error("id does not exists - should return error")
+			return
+		} else {
+			t.Log(err)
+		}
+	})
 }
