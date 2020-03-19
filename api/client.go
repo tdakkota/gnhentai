@@ -91,8 +91,10 @@ func (c Client) requestComic(url string) (d gnhentai.Doujinshi, err error) {
 }
 
 type MultipleResult struct {
-	Result []gnhentai.Doujinshi `json:"result"`
-	Error  string               `json:"error"`
+	Result   []gnhentai.Doujinshi `json:"result"`
+	NumPages int                  `json:"num_pages"`
+	PerPage  int                  `json:"per_page"`
+	Error    string               `json:"error"`
 }
 
 func (c Client) Search(q string, page int) ([]gnhentai.Doujinshi, error) {

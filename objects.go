@@ -74,7 +74,8 @@ func (d *Doujinshi) UnmarshalJSON(data []byte) error {
 	type Alias Doujinshi
 	correctStruct := struct {
 		*Alias
-		MediaID    string        `json:"media_id"`
+		ID         json.Number   `json:"id"`
+		MediaID    json.Number   `json:"media_id"`
 		UploadDate JSONTimestamp `json:"upload_date"`
 	}{}
 
@@ -83,11 +84,17 @@ func (d *Doujinshi) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	d.ID = correctStruct.ID
-	d.MediaID, err = strconv.Atoi(correctStruct.MediaID)
+	ID, err := correctStruct.MediaID.Int64()
 	if err != nil {
-		return fmt.Errorf("failed to parse media id from '%s': %v", correctStruct.MediaID, err)
+		return fmt.Errorf("failed to parse ID from '%s': %v", correctStruct.MediaID, err)
 	}
+	d.ID = int(ID)
+
+	mediaID, err := correctStruct.MediaID.Int64()
+	if err != nil {
+		return fmt.Errorf("failed to parse media ID from '%s': %v", correctStruct.MediaID, err)
+	}
+	d.MediaID = int(mediaID)
 
 	d.Title = correctStruct.Title
 	d.Tags = correctStruct.Tags
