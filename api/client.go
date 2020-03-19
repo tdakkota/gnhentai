@@ -43,6 +43,10 @@ func (c Client) randomPage() (id int, err error) {
 		return
 	}
 
+	if !(r.StatusCode >= 300 && r.StatusCode <= 399) {
+		return 0, fmt.Errorf("bad http code: %d", r.StatusCode)
+	}
+
 	u, err := r.Location() // /random/ should redirect to random page
 	if err != nil {
 		return

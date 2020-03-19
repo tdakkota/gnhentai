@@ -1,6 +1,9 @@
 package gnhentai
 
 import (
+	"encoding/json"
+	"fmt"
+	"strconv"
 	"time"
 )
 
@@ -36,6 +39,22 @@ type Title struct {
 	Pretty   string `json:"pretty"`
 }
 
+// JSONTimestamp
+type JSONTimestamp struct {
+	time.Time
+}
+
+// UnmarshalJSON parses json number into time.Time
+func (t *JSONTimestamp) UnmarshalJSON(b []byte) error {
+	parsed, err := strconv.ParseInt(string(b), 10, 64)
+	if err != nil {
+		return err
+	}
+
+	t.Time = time.Unix(parsed, 0)
+	return nil
+}
+
 type Doujinshi struct {
 	// ID is unique identification number of Doujinshi.
 	// Note: parser does not parse ID of Doujinshi.
@@ -49,4 +68,34 @@ type Doujinshi struct {
 	NumFavorites int       `json:"num_favorites"`
 	UploadDate   time.Time `json:"upload_date"`
 	Images       Images    `json:"images"`
+}
+
+func (d *Doujinshi) UnmarshalJSON(data []byte) error {
+	type Alias Doujinshi
+	correctStruct := struct {
+		*Alias
+		MediaID    string        `json:"media_id"`
+		UploadDate JSONTimestamp `json:"upload_date"`
+	}{}
+
+	err := json.Unmarshal(data, &correctStruct)
+	if err != nil {
+		return err
+	}
+
+	d.ID = correctStruct.ID
+	d.MediaID, err = strconv.Atoi(correctStruct.MediaID)
+	if err != nil {
+		return fmt.Errorf("failed to parse media id from '%s': %v", correctStruct.MediaID, err)
+	}
+
+	d.Title = correctStruct.Title
+	d.Tags = correctStruct.Tags
+	d.Scanlator = correctStruct.Scanlator
+	d.NumPages = correctStruct.NumPages
+	d.NumFavorites = correctStruct.NumFavorites
+	d.UploadDate = correctStruct.UploadDate.Time
+	d.Images = correctStruct.Images
+
+	return nil
 }

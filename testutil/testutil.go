@@ -128,13 +128,15 @@ func TestRelated(t *testing.T, constructor func() gnhentai.Client) {
 
 	t.Run("get from 305329", func(t *testing.T) {
 		c := constructor()
-		_, err := c.Related(305329)
-		if err == nil {
-			t.Error("id does not exists - should return error")
+
+		d, err := c.Related(305329)
+		if err != nil {
+			t.Error(err)
 			return
-		} else {
-			t.Log(err)
 		}
+
+		require.NotEmpty(t, d)
+		t.Log(d[0].Title.English)
 	})
 
 	t.Run("id-does-not-exists", func(t *testing.T) {
