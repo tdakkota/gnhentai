@@ -30,6 +30,86 @@ func TestRandom(t *testing.T) {
 	t.Log(string(d))
 }
 
+func TestSearch(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
+
+	t.Run("first-page", func(t *testing.T) {
+		c := NewClient()
+		h, err := c.Search("ahegao", 0)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+
+		d, err := json.MarshalIndent(h, "", "\t")
+		if err != nil {
+			t.Error(err)
+			return
+		}
+
+		t.Log(string(d))
+	})
+
+	t.Run("second-page", func(t *testing.T) {
+		c := NewClient()
+		h, err := c.Search("ahegao", 2)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+
+		d, err := json.MarshalIndent(h, "", "\t")
+		if err != nil {
+			t.Error(err)
+			return
+		}
+
+		t.Log(string(d))
+	})
+}
+
+func TestSearchByTag(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
+
+	t.Run("first-page", func(t *testing.T) {
+		c := NewClient()
+		h, err := c.SearchByTag("milf", 0)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+
+		d, err := json.MarshalIndent(h, "", "\t")
+		if err != nil {
+			t.Error(err)
+			return
+		}
+
+		t.Log(string(d))
+	})
+
+	t.Run("second-page", func(t *testing.T) {
+		c := NewClient()
+		h, err := c.SearchByTag("milf", 2)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+
+		d, err := json.MarshalIndent(h, "", "\t")
+		if err != nil {
+			t.Error(err)
+			return
+		}
+
+		t.Log(string(d))
+	})
+}
+
 func TestGetByID(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
