@@ -21,13 +21,7 @@ func TestRandom(t *testing.T, constructor func(t *testing.T) gnhentai.Client) {
 		return
 	}
 
-	d, err := json.MarshalIndent(h, "", "\t")
-	if err != nil {
-		t.Error(err)
-		return
-	}
-
-	t.Log(string(d))
+	t.Log(h.Title.English)
 }
 
 func TestSearch(t *testing.T, constructor func(t *testing.T) gnhentai.Client) {
@@ -43,13 +37,8 @@ func TestSearch(t *testing.T, constructor func(t *testing.T) gnhentai.Client) {
 			return
 		}
 
-		d, err := json.MarshalIndent(h, "", "\t")
-		if err != nil {
-			t.Error(err)
-			return
-		}
-
-		t.Log(string(d))
+		require.NotEmpty(t, h)
+		t.Log(h[0].Title.English)
 	})
 
 	t.Run("second-page", func(t *testing.T) {
@@ -60,13 +49,8 @@ func TestSearch(t *testing.T, constructor func(t *testing.T) gnhentai.Client) {
 			return
 		}
 
-		d, err := json.MarshalIndent(h, "", "\t")
-		if err != nil {
-			t.Error(err)
-			return
-		}
-
-		t.Log(string(d))
+		require.NotEmpty(t, h)
+		t.Log(h[0].Title.English)
 	})
 }
 
@@ -83,13 +67,8 @@ func TestSearchByTag(t *testing.T, constructor func(t *testing.T) gnhentai.Clien
 			return
 		}
 
-		d, err := json.MarshalIndent(h, "", "\t")
-		if err != nil {
-			t.Error(err)
-			return
-		}
-
-		t.Log(string(d))
+		require.NotEmpty(t, h)
+		t.Log(h[0].Title.English)
 	})
 
 	t.Run("second-page", func(t *testing.T) {
@@ -100,13 +79,8 @@ func TestSearchByTag(t *testing.T, constructor func(t *testing.T) gnhentai.Clien
 			return
 		}
 
-		d, err := json.MarshalIndent(h, "", "\t")
-		if err != nil {
-			t.Error(err)
-			return
-		}
-
-		t.Log(string(d))
+		require.NotEmpty(t, h)
+		t.Log(h[0].Title.English)
 	})
 
 	t.Run("tag-does-not-exists", func(t *testing.T) {
@@ -187,17 +161,9 @@ func TestGetByID(t *testing.T, constructor func(t *testing.T) gnhentai.Client) {
 				return
 			}
 
-			pretty, err := json.MarshalIndent(doujinshi, "", "\t")
-			if err != nil {
-				t.Error(err)
-				return
-			}
+			t.Log("Title:", doujinshi.Title)
 
-			t.Log(string(pretty))
-
-			require.Equal(t, data.Title.Pretty, doujinshi.Title.Pretty)
 			require.Equal(t, data.Title.English, doujinshi.Title.English)
-			require.Equal(t, data.Title.Japanese, doujinshi.Title.Japanese)
 			require.NotEmpty(t, data.Tags)
 			require.Equal(t, data.Tags[0].Name, doujinshi.Tags[0].Name)
 			require.Equal(t, data.NumPages, doujinshi.NumPages)
