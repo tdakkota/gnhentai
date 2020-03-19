@@ -1,12 +1,18 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/tdakkota/gnhentai"
+	"github.com/tdakkota/gnhentai/api"
 	"github.com/tdakkota/gnhentai/parser"
 	"github.com/urfave/cli/v2"
+	"golang.org/x/net/proxy"
 	"log"
+	"net"
+	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -17,9 +23,7 @@ type App struct {
 }
 
 func NewApp() *App {
-	return &App{
-		client: parser.NewParser(),
-	}
+	return &App{}
 }
 
 func prettyPrint(d gnhentai.Doujinshi) error {
@@ -94,6 +98,57 @@ func (app *App) download(c *cli.Context) (err error) {
 	return nil
 }
 
+func transportWithSocks(rawurl string) (http.RoundTripper, error) {
+	u, err := url.Parse(rawurl)
+	if err != nil {
+		return nil, err
+	}
+
+	var auth *proxy.Auth
+
+	if p, ok := u.User.Password(); ok {
+		auth = &proxy.Auth{Password: p}
+	}
+
+	if user := u.User.Username(); user != "" {
+		if auth == nil {
+			auth = &proxy.Auth{}
+		}
+		auth.User = user
+	}
+
+	dialer, err := proxy.SOCKS5("tcp", u.Host+":"+u.Port(), auth, proxy.Direct)
+	if err != nil {
+		return nil, err
+	}
+
+	httpTransport := &http.Transport{}
+	httpTransport.DialContext = func(ctx context.Context, network, addr string) (conn net.Conn, e error) {
+		return dialer.Dial(network, addr)
+	}
+	return httpTransport, nil
+}
+
+func (app *App) setup(c *cli.Context) error {
+	client := http.DefaultClient
+
+	if proxyUrl := c.String("proxy"); proxyUrl != "" {
+		transport, err := transportWithSocks(proxyUrl)
+		if err != nil {
+			return err
+		}
+		client.Transport = transport
+	}
+
+	if c.Bool("api") {
+		app.client = api.NewClient(api.WithClient(client))
+	} else {
+		app.client = parser.NewParser(parser.WithClient(client))
+	}
+
+	return nil
+}
+
 func (app *App) commands() []*cli.Command {
 	return []*cli.Command{
 		{
@@ -135,7 +190,12 @@ func (app *App) flags() []cli.Flag {
 		&cli.StringFlag{
 			Name:    "proxy",
 			Usage:   "proxy for http client (in format socks5://localhost:9051)",
-			EnvVars: []string{"PROXY"},
+			EnvVars: []string{"PROXY", "GNHENTAI_PROXY"},
+		},
+		&cli.BoolFlag{
+			Name:    "api",
+			Usage:   "if true, uses api.Client instead of parser",
+			EnvVars: []string{"API", "GNHENTAI_API"},
 		},
 	}
 }
