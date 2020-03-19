@@ -77,7 +77,7 @@ func TestSearchByTag(t *testing.T, constructor func(t *testing.T) gnhentai.Clien
 
 	t.Run("first-page", func(t *testing.T) {
 		c := constructor(t)
-		h, err := c.SearchByTag(gnhentai.Tag{Name: "milf"}, 0)
+		h, err := c.SearchByTag(gnhentai.Tag{Name: "milf", ID: 1207}, 0)
 		if err != nil {
 			t.Error(err)
 			return
@@ -94,7 +94,7 @@ func TestSearchByTag(t *testing.T, constructor func(t *testing.T) gnhentai.Clien
 
 	t.Run("second-page", func(t *testing.T) {
 		c := constructor(t)
-		h, err := c.SearchByTag(gnhentai.Tag{Name: "milf"}, 2)
+		h, err := c.SearchByTag(gnhentai.Tag{Name: "milf", ID: 1207}, 2)
 		if err != nil {
 			t.Error(err)
 			return

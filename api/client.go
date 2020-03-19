@@ -43,18 +43,10 @@ func (c Client) randomPage() (id int, err error) {
 		return
 	}
 
-	if !(r.StatusCode >= 300 && r.StatusCode <= 399) {
-		return 0, fmt.Errorf("bad http code: %d", r.StatusCode)
-	}
-
-	u, err := r.Location() // /random/ should redirect to random page
+	u := r.Request.URL.String()
+	_, err = fmt.Sscanf(u, "https://nhentai.net/g/%d/", &id)
 	if err != nil {
-		return
-	}
-
-	_, err = fmt.Sscanf(u.String(), "https://nhentai.net/g/%d/", &id)
-	if err != nil {
-		return 0, fmt.Errorf("failed to parse ID in %s: %v", u.String(), err)
+		return 0, fmt.Errorf("failed to parse ID in %s: %v", u, err)
 	}
 
 	return
