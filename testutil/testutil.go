@@ -9,12 +9,12 @@ import (
 	"testing"
 )
 
-func TestRandom(t *testing.T, constructor func() gnhentai.Client) {
+func TestRandom(t *testing.T, constructor func(t *testing.T) gnhentai.Client) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
 
-	c := constructor()
+	c := constructor(t)
 	h, err := c.Random()
 	if err != nil {
 		t.Error(err)
@@ -30,13 +30,13 @@ func TestRandom(t *testing.T, constructor func() gnhentai.Client) {
 	t.Log(string(d))
 }
 
-func TestSearch(t *testing.T, constructor func() gnhentai.Client) {
+func TestSearch(t *testing.T, constructor func(t *testing.T) gnhentai.Client) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
 
 	t.Run("first-page", func(t *testing.T) {
-		c := constructor()
+		c := constructor(t)
 		h, err := c.Search("ahegao", 0)
 		if err != nil {
 			t.Error(err)
@@ -53,7 +53,7 @@ func TestSearch(t *testing.T, constructor func() gnhentai.Client) {
 	})
 
 	t.Run("second-page", func(t *testing.T) {
-		c := constructor()
+		c := constructor(t)
 		h, err := c.Search("ahegao", 2)
 		if err != nil {
 			t.Error(err)
@@ -70,13 +70,13 @@ func TestSearch(t *testing.T, constructor func() gnhentai.Client) {
 	})
 }
 
-func TestSearchByTag(t *testing.T, constructor func() gnhentai.Client) {
+func TestSearchByTag(t *testing.T, constructor func(t *testing.T) gnhentai.Client) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
 
 	t.Run("first-page", func(t *testing.T) {
-		c := constructor()
+		c := constructor(t)
 		h, err := c.SearchByTag(gnhentai.Tag{Name: "milf"}, 0)
 		if err != nil {
 			t.Error(err)
@@ -93,7 +93,7 @@ func TestSearchByTag(t *testing.T, constructor func() gnhentai.Client) {
 	})
 
 	t.Run("second-page", func(t *testing.T) {
-		c := constructor()
+		c := constructor(t)
 		h, err := c.SearchByTag(gnhentai.Tag{Name: "milf"}, 2)
 		if err != nil {
 			t.Error(err)
@@ -110,7 +110,7 @@ func TestSearchByTag(t *testing.T, constructor func() gnhentai.Client) {
 	})
 
 	t.Run("tag-does-not-exists", func(t *testing.T) {
-		c := constructor()
+		c := constructor(t)
 		_, err := c.SearchByTag(gnhentai.Tag{Name: "lolkek"}, 0)
 		if err == nil {
 			t.Error("tag does not exists - should return error")
@@ -121,13 +121,13 @@ func TestSearchByTag(t *testing.T, constructor func() gnhentai.Client) {
 	})
 }
 
-func TestRelated(t *testing.T, constructor func() gnhentai.Client) {
+func TestRelated(t *testing.T, constructor func(t *testing.T) gnhentai.Client) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
 
 	t.Run("get from 305329", func(t *testing.T) {
-		c := constructor()
+		c := constructor(t)
 
 		d, err := c.Related(305329)
 		if err != nil {
@@ -140,7 +140,7 @@ func TestRelated(t *testing.T, constructor func() gnhentai.Client) {
 	})
 
 	t.Run("id-does-not-exists", func(t *testing.T) {
-		c := constructor()
+		c := constructor(t)
 		_, err := c.Related(-100500)
 		if err == nil {
 			t.Error("id does not exists - should return error")
@@ -151,7 +151,7 @@ func TestRelated(t *testing.T, constructor func() gnhentai.Client) {
 	})
 }
 
-func TestGetByID(t *testing.T, constructor func() gnhentai.Client) {
+func TestGetByID(t *testing.T, constructor func(t *testing.T) gnhentai.Client) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
@@ -179,7 +179,7 @@ func TestGetByID(t *testing.T, constructor func() gnhentai.Client) {
 		}
 
 		t.Run(id, func(t *testing.T) {
-			c := constructor()
+			c := constructor(t)
 
 			doujinshi, err := c.ByID(numberID)
 			if err != nil {
@@ -205,13 +205,13 @@ func TestGetByID(t *testing.T, constructor func() gnhentai.Client) {
 	}
 }
 
-func TestGetByID2(t *testing.T, constructor func() gnhentai.Client) {
+func TestGetByID2(t *testing.T, constructor func(t *testing.T) gnhentai.Client) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
 
 	t.Run("id-does-not-exists", func(t *testing.T) {
-		c := constructor()
+		c := constructor(t)
 		_, err := c.ByID(-100500)
 		if err == nil {
 			t.Error("id does not exists - should return error")
@@ -222,8 +222,8 @@ func TestGetByID2(t *testing.T, constructor func() gnhentai.Client) {
 	})
 }
 
-func RunAll(t *testing.T, constructor func() gnhentai.Client) {
-	funcs := map[string]func(t *testing.T, constructor func() gnhentai.Client){
+func RunAll(t *testing.T, constructor func(t *testing.T) gnhentai.Client) {
+	funcs := map[string]func(t *testing.T, constructor func(t *testing.T) gnhentai.Client){
 		"TestRandom":      TestRandom,
 		"TestSearch":      TestSearch,
 		"TestSearchByTag": TestSearchByTag,

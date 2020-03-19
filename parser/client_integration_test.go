@@ -6,8 +6,8 @@ import (
 	"testing"
 )
 
-func newParser() gnhentai.Client {
-	return NewParser()
+func newParser(t *testing.T) gnhentai.Client {
+	return NewParser(WithClient(testutil.TestClient(t)))
 }
 
 func TestRandom(t *testing.T) {
