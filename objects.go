@@ -60,7 +60,7 @@ type Doujinshi struct {
 	// Note: parser does not parse ID of Doujinshi.
 	ID        int    `json:"id"`
 	MediaID   int    `json:"media_id"`
-	Title     Title  `json:"name"`
+	Title     Title  `json:"title"`
 	Tags      []Tag  `json:"tags"`
 	Scanlator string `json:"scanlator"`
 	// NumPages is number of manga pages.

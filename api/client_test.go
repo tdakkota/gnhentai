@@ -2,6 +2,11 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
+	"github.com/stretchr/testify/require"
+	"github.com/tdakkota/gnhentai"
+	"os"
+	"strconv"
 	"testing"
 )
 
@@ -17,4 +22,51 @@ func TestParseMultipleResult(t *testing.T) {
 
 	t.Log(len(result.Result), "parsed")
 
+}
+
+func TestParseResult(t *testing.T) {
+	dataFile, err := os.Open("../testdata/integration.json")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer dataFile.Close()
+
+	var testData map[string]gnhentai.Doujinshi
+	err = json.NewDecoder(dataFile).Decode(&testData)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	for id, data := range testData {
+		numberID, err := strconv.Atoi(id)
+		if err != nil {
+			t.Log("invalid testdata")
+			t.Fail()
+			return
+		}
+
+		t.Run(id, func(t *testing.T) {
+			apiResponse, err := os.Open(fmt.Sprintf("../testdata/%d.json", numberID))
+			if err != nil {
+				t.Error(err)
+				return
+			}
+			defer apiResponse.Close()
+
+			var doujinshi gnhentai.Doujinshi
+			err = json.NewDecoder(apiResponse).Decode(&doujinshi)
+			if err != nil {
+				t.Error(err)
+				return
+			}
+
+			t.Log("Title:", doujinshi.Title.English)
+
+			require.Equal(t, data.Title.English, doujinshi.Title.English)
+			require.NotEmpty(t, data.Tags)
+			require.Equal(t, data.Tags[0].Name, doujinshi.Tags[0].Name)
+		})
+	}
 }
