@@ -82,7 +82,7 @@ func (app *App) download(c *cli.Context) (err error) {
 		dir = strconv.Itoa(id)
 	}
 
-	d := gnhentai.NewSimpleDownloader(nil)
+	d := parser.NewDownloader(nil)
 	err = gnhentai.DownloadAll(d, doujinshi, func(i int, d gnhentai.Doujinshi) string {
 		return filepath.Join(dir, fmt.Sprintf("%d.jpg", i))
 	})

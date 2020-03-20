@@ -12,10 +12,11 @@ const BaseNHentaiAPILink = gnhentai.BaseNHentaiLink + "/api"
 
 type Client struct {
 	client *http.Client
+	format string
 }
 
 func NewClient(opts ...Option) *Client {
-	c := &Client{}
+	c := &Client{format: "jpg"}
 
 	for _, opt := range opts {
 		opt(c)
@@ -136,6 +137,18 @@ func (c Client) requestSearch(url string) ([]gnhentai.Doujinshi, error) {
 	}
 
 	return result.Result, nil
+}
+
+func (c Client) Page(mediaID, n int) (io.ReadCloser, error) {
+	return c.request(fmt.Sprintf("%s/%d/%d.%s", BaseNHentaiAPILink, mediaID, n, c.format))
+}
+
+func (c Client) Thumbnail(mediaID int, n int) (io.ReadCloser, error) {
+	return c.request(fmt.Sprintf("%s/%d/%dt.%s", BaseNHentaiAPILink, mediaID, n, c.format))
+}
+
+func (c Client) Cover(mediaID int) (io.ReadCloser, error) {
+	return c.request(fmt.Sprintf("%s/%d/cover.%s", BaseNHentaiAPILink, mediaID, c.format))
 }
 
 func (c Client) request(url string) (io.ReadCloser, error) {
