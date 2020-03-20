@@ -195,6 +195,24 @@ func TestGetByID2(t *testing.T, constructor func(t *testing.T) gnhentai.Client) 
 	})
 }
 
+func TestDownloader(t *testing.T, constructor func(t *testing.T) gnhentai.Downloader) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
+
+	t.Run("download-305329", func(t *testing.T) {
+		d := constructor(t)
+		err := gnhentai.DownloadAll(d, gnhentai.Doujinshi{MediaID: 1590084}, func(i int, d gnhentai.Doujinshi) string {
+			return strconv.Itoa(i) + ".jpg"
+		})
+
+		if err != nil {
+			t.Error(err)
+			return
+		}
+	})
+}
+
 func RunAll(t *testing.T, constructor func(t *testing.T) gnhentai.Client) {
 	funcs := map[string]func(t *testing.T, constructor func(t *testing.T) gnhentai.Client){
 		"TestRandom":      TestRandom,

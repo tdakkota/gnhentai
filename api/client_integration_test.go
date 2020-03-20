@@ -10,6 +10,10 @@ func newClient(t *testing.T) gnhentai.Client {
 	return NewClient(WithClient(testutil.TestClient(t)))
 }
 
+func newDownloader(t *testing.T) gnhentai.Downloader {
+	return NewClient(WithClient(testutil.TestClient(t)))
+}
+
 func TestRandom(t *testing.T) {
 	testutil.TestRandom(t, newClient)
 }
@@ -32,4 +36,8 @@ func TestGetByID2(t *testing.T) {
 
 func TestRelated(t *testing.T) {
 	testutil.TestRelated(t, newClient)
+}
+
+func TestDownloader(t *testing.T) {
+	testutil.TestDownloader(t, newDownloader)
 }
