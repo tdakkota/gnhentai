@@ -6,6 +6,7 @@ import (
 	"github.com/tdakkota/gnhentai"
 	"io"
 	"net/http"
+	"strconv"
 )
 
 type Server struct {
@@ -135,6 +136,7 @@ func (s Server) GetThumbnailByID(w http.ResponseWriter, req *http.Request) {
 func (s Server) Search(w http.ResponseWriter, req *http.Request) {
 	q := req.URL.Query().Get("q")
 	if q == "" {
+		s.needQueryError(w)
 		return
 	}
 
@@ -160,7 +162,31 @@ func (s Server) Search(w http.ResponseWriter, req *http.Request) {
 }
 
 func (s Server) SearchByTag(w http.ResponseWriter, req *http.Request) {
+	tagID, err := strconv.Atoi(req.URL.Query().Get("tag_id"))
+	if err != nil {
+		s.justError(w)
+		return
+	}
 
+	pageID, ok := s.getPage(w, req)
+	if !ok {
+		pageID = 0
+	}
+
+	r, err := s.client.SearchByTag(gnhentai.Tag{ID: tagID}, pageID)
+	if err != nil {
+		s.log.Error().Err(err).Int("tag_id", tagID).Msg("error caused while searching")
+		s.internalServerError(w)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(w).Encode(r)
+	if err != nil {
+		s.log.Error().Err(err).Int("tag_id", tagID).Msg("error caused while marshalling doujinshi list")
+		s.internalServerError(w)
+		return
+	}
 }
 
 func (s Server) Related(w http.ResponseWriter, req *http.Request) {
