@@ -140,15 +140,15 @@ func (c Client) requestSearch(url string) ([]gnhentai.Doujinshi, error) {
 }
 
 func (c Client) Page(mediaID, n int) (io.ReadCloser, error) {
-	return c.request(fmt.Sprintf("%s/%d/%d.%s", BaseNHentaiAPILink, mediaID, n, c.format))
+	return c.request(fmt.Sprintf("%s/galleries/%d/%d.%s", gnhentai.BaseNHentaiLink, mediaID, n, c.format))
 }
 
 func (c Client) Thumbnail(mediaID int, n int) (io.ReadCloser, error) {
-	return c.request(fmt.Sprintf("%s/%d/%dt.%s", BaseNHentaiAPILink, mediaID, n, c.format))
+	return c.request(fmt.Sprintf("%s/galleries/%d/%dt.%s", gnhentai.BaseNHentaiLink, mediaID, n, c.format))
 }
 
 func (c Client) Cover(mediaID int) (io.ReadCloser, error) {
-	return c.request(fmt.Sprintf("%s/%d/cover.%s", BaseNHentaiAPILink, mediaID, c.format))
+	return c.request(fmt.Sprintf("%s/galleries/%d/cover.%s", gnhentai.BaseNHentaiLink, mediaID, c.format))
 }
 
 func (c Client) request(url string) (io.ReadCloser, error) {
