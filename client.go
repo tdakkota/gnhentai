@@ -1,7 +1,5 @@
 package gnhentai
 
-import "io"
-
 type Client interface {
 	ByID(id int) (Doujinshi, error)
 	Random() (Doujinshi, error)

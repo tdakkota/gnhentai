@@ -204,6 +204,7 @@ func (app *App) cli() *cli.App {
 	return &cli.App{
 		Name:     "gnhentai-cli",
 		Usage:    "cli tool to search Doujinshi",
+		Before:   app.setup,
 		Commands: app.commands(),
 		Flags:    app.flags(),
 	}
