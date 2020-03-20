@@ -1,7 +1,8 @@
-package api
+package server
 
 import (
 	"encoding/json"
+	"github.com/go-chi/chi"
 	"github.com/rs/zerolog"
 	"github.com/tdakkota/gnhentai"
 	"io"
@@ -209,4 +210,22 @@ func (s Server) Related(w http.ResponseWriter, req *http.Request) {
 		s.internalServerError(w)
 		return
 	}
+}
+
+func (s Server) Register(r chi.Router) {
+	r.Route("/api/galleries", func(r chi.Router) {
+		r.Get("/search", s.Search)
+		r.Get("/tagged", s.SearchByTag)
+	})
+
+	r.Route("/api/gallery", func(r chi.Router) {
+		r.Get("/{book_id}", s.GetBookByID)
+		r.Get("/{book_id}/related", s.Related)
+	})
+
+	r.Route("/galleries", func(r chi.Router) {
+		r.Get("/{book_id}/{page}.{format}", s.GetPageByID)
+		r.Get("/{book_id}/{page}t.{format}", s.GetThumbnailByID)
+		r.Get("/{book_id}/cover.{format}", s.GetCoverByID)
+	})
 }

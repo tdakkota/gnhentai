@@ -1,13 +1,14 @@
-package api
+package server
 
 import (
+	"github.com/go-chi/chi"
 	"io"
 	"net/http"
 	"strconv"
 )
 
 func getParam(name string, req *http.Request) (string, bool) {
-	return "", false
+	return chi.URLParam(req, name), name != ""
 }
 
 func (s Server) justError(w http.ResponseWriter) {
@@ -31,11 +32,12 @@ func (s Server) getIntParam(name string, w http.ResponseWriter, req *http.Reques
 		id, err = strconv.Atoi(v)
 		if err != nil || id <= 0 {
 			s.justError(w)
-			return
+			return 0, false
 		}
+		return id, true
 	}
 
-	return id, true
+	return id, false
 }
 
 func (s Server) getBookID(w http.ResponseWriter, req *http.Request) (id int, ok bool) {
