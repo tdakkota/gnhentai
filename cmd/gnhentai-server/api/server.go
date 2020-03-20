@@ -6,7 +6,6 @@ import (
 	"github.com/tdakkota/gnhentai"
 	"io"
 	"net/http"
-	"strconv"
 )
 
 type Server struct {
@@ -15,43 +14,8 @@ type Server struct {
 	log        zerolog.Logger
 }
 
-func NewServer(client gnhentai.Client, log zerolog.Logger) *Server {
-	return &Server{client: client, log: log}
-}
-
-func getParam(name string, req *http.Request) (string, bool) {
-	return "", false
-}
-
-func (s Server) justError(w http.ResponseWriter) {
-	_, _ = w.Write([]byte(`{"error": true}`))
-}
-
-func (s Server) internalServerError(w http.ResponseWriter) {
-	w.WriteHeader(500)
-	s.justError(w)
-}
-
-func (s Server) getIntParam(name string, w http.ResponseWriter, req *http.Request) (id int, ok bool) {
-	var err error
-
-	if v, ok := getParam(name, req); ok {
-		id, err = strconv.Atoi(v)
-		if err != nil || id <= 0 {
-			s.justError(w)
-			return
-		}
-	}
-
-	return id, true
-}
-
-func (s Server) getBookID(w http.ResponseWriter, req *http.Request) (id int, ok bool) {
-	return s.getIntParam("book_id", w, req)
-}
-
-func (s Server) getPage(w http.ResponseWriter, req *http.Request) (id int, ok bool) {
-	return s.getIntParam("page", w, req)
+func NewServer(client gnhentai.Client, downloader gnhentai.Downloader, log zerolog.Logger) *Server {
+	return &Server{client: client, downloader: downloader, log: log}
 }
 
 func (s Server) GetBookByID(w http.ResponseWriter, req *http.Request) {
@@ -84,7 +48,7 @@ func (s Server) GetPageByID(w http.ResponseWriter, req *http.Request) {
 
 	pageID, ok := s.getPage(w, req)
 	if !ok {
-		return
+		pageID = 0
 	}
 
 	image, err := s.downloader.Page(bookID, pageID)
@@ -96,7 +60,7 @@ func (s Server) GetPageByID(w http.ResponseWriter, req *http.Request) {
 		s.internalServerError(w)
 		return
 	}
-	defer image.Close()
+	defer s.onClose(image)
 
 	_, err = io.Copy(w, image)
 	if err != nil {
@@ -123,7 +87,7 @@ func (s Server) GetCoverByID(w http.ResponseWriter, req *http.Request) {
 		s.internalServerError(w)
 		return
 	}
-	defer image.Close()
+	defer s.onClose(image)
 
 	_, err = io.Copy(w, image)
 	if err != nil {
@@ -155,7 +119,7 @@ func (s Server) GetThumbnailByID(w http.ResponseWriter, req *http.Request) {
 		s.internalServerError(w)
 		return
 	}
-	defer image.Close()
+	defer s.onClose(image)
 
 	_, err = io.Copy(w, image)
 	if err != nil {
@@ -169,10 +133,54 @@ func (s Server) GetThumbnailByID(w http.ResponseWriter, req *http.Request) {
 }
 
 func (s Server) Search(w http.ResponseWriter, req *http.Request) {
+	q := req.URL.Query().Get("q")
+	if q == "" {
+		return
+	}
+
+	pageID, ok := s.getPage(w, req)
+	if !ok {
+		pageID = 0
+	}
+
+	r, err := s.client.Search(q, pageID)
+	if err != nil {
+		s.log.Error().Err(err).Str("query", q).Msg("error caused while searching")
+		s.internalServerError(w)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(w).Encode(r)
+	if err != nil {
+		s.log.Error().Err(err).Str("query", q).Msg("error caused while marshalling doujinshi list")
+		s.internalServerError(w)
+		return
+	}
 }
 
 func (s Server) SearchByTag(w http.ResponseWriter, req *http.Request) {
+
 }
 
 func (s Server) Related(w http.ResponseWriter, req *http.Request) {
+	id, ok := s.getBookID(w, req)
+	if !ok {
+		return
+	}
+
+	r, err := s.client.Related(id)
+	if err != nil {
+		s.log.Error().Err(err).Int("book_id", id).Msg("error caused while getting related from API")
+		s.internalServerError(w)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(w).Encode(r)
+	if err != nil {
+		s.log.Error().Err(err).Int("book_id", id).Msg("error caused while marshalling doujinshi list")
+		s.internalServerError(w)
+		return
+	}
 }
