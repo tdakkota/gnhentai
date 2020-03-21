@@ -79,7 +79,7 @@ func (m MockClient) Related(id int) ([]gnhentai.Doujinshi, error) {
 
 func testServer() (*Server, MockClient, error) {
 	m := MockClient{}
-	data, err := ioutil.ReadFile("../../../testdata/305329.json")
+	data, err := ioutil.ReadFile("../testdata/305329.json")
 	if err != nil {
 		return nil, m, err
 	}
