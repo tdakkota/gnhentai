@@ -25,13 +25,12 @@ func (s Server) needQueryError(w http.ResponseWriter) {
 	_, _ = w.Write([]byte(`{"error": "You need to provide a search query"}`))
 }
 
-func (s Server) getIntParam(name string, w http.ResponseWriter, req *http.Request) (id int, ok bool) {
+func (s Server) getIntParam(name string, req *http.Request) (id int, ok bool) {
 	var err error
 
 	if v, ok := getParam(name, req); ok {
 		id, err = strconv.Atoi(v)
 		if err != nil || id <= 0 {
-			s.justError(w)
 			return 0, false
 		}
 		return id, true
@@ -40,12 +39,12 @@ func (s Server) getIntParam(name string, w http.ResponseWriter, req *http.Reques
 	return id, false
 }
 
-func (s Server) getBookID(w http.ResponseWriter, req *http.Request) (id int, ok bool) {
-	return s.getIntParam("book_id", w, req)
+func (s Server) getBookID(req *http.Request) (id int, ok bool) {
+	return s.getIntParam("book_id", req)
 }
 
-func (s Server) getPage(w http.ResponseWriter, req *http.Request) (id int, ok bool) {
-	return s.getIntParam("page", w, req)
+func (s Server) getPage(req *http.Request) (id int, ok bool) {
+	return s.getIntParam("page", req)
 }
 
 func (s Server) onClose(c io.Closer) {

@@ -21,8 +21,10 @@ func NewServer(client gnhentai.Client, downloader gnhentai.Downloader, log zerol
 }
 
 func (s Server) GetBookByID(w http.ResponseWriter, req *http.Request) {
-	id, ok := s.getBookID(w, req)
+	id, ok := s.getBookID(req)
 	if !ok {
+		w.WriteHeader(403)
+		s.justError(w)
 		return
 	}
 
@@ -43,12 +45,14 @@ func (s Server) GetBookByID(w http.ResponseWriter, req *http.Request) {
 }
 
 func (s Server) GetPageByID(w http.ResponseWriter, req *http.Request) {
-	bookID, ok := s.getBookID(w, req)
+	bookID, ok := s.getBookID(req)
 	if !ok {
+		w.WriteHeader(403)
+		s.justError(w)
 		return
 	}
 
-	pageID, ok := s.getPage(w, req)
+	pageID, ok := s.getPage(req)
 	if !ok {
 		pageID = 0
 	}
@@ -76,8 +80,10 @@ func (s Server) GetPageByID(w http.ResponseWriter, req *http.Request) {
 }
 
 func (s Server) GetCoverByID(w http.ResponseWriter, req *http.Request) {
-	bookID, ok := s.getBookID(w, req)
+	bookID, ok := s.getBookID(req)
 	if !ok {
+		w.WriteHeader(403)
+		s.justError(w)
 		return
 	}
 
@@ -102,12 +108,14 @@ func (s Server) GetCoverByID(w http.ResponseWriter, req *http.Request) {
 }
 
 func (s Server) GetThumbnailByID(w http.ResponseWriter, req *http.Request) {
-	bookID, ok := s.getBookID(w, req)
+	bookID, ok := s.getBookID(req)
 	if !ok {
+		w.WriteHeader(403)
+		s.justError(w)
 		return
 	}
 
-	pageID, ok := s.getPage(w, req)
+	pageID, ok := s.getPage(req)
 	if !ok {
 		return
 	}
@@ -135,13 +143,13 @@ func (s Server) GetThumbnailByID(w http.ResponseWriter, req *http.Request) {
 }
 
 func (s Server) Search(w http.ResponseWriter, req *http.Request) {
-	q := req.URL.Query().Get("q")
+	q := req.URL.Query().Get("query")
 	if q == "" {
 		s.needQueryError(w)
 		return
 	}
 
-	pageID, ok := s.getPage(w, req)
+	pageID, ok := s.getPage(req)
 	if !ok {
 		pageID = 0
 	}
@@ -165,11 +173,12 @@ func (s Server) Search(w http.ResponseWriter, req *http.Request) {
 func (s Server) SearchByTag(w http.ResponseWriter, req *http.Request) {
 	tagID, err := strconv.Atoi(req.URL.Query().Get("tag_id"))
 	if err != nil {
+		w.WriteHeader(403)
 		s.justError(w)
 		return
 	}
 
-	pageID, ok := s.getPage(w, req)
+	pageID, ok := s.getPage(req)
 	if !ok {
 		pageID = 0
 	}
@@ -191,8 +200,10 @@ func (s Server) SearchByTag(w http.ResponseWriter, req *http.Request) {
 }
 
 func (s Server) Related(w http.ResponseWriter, req *http.Request) {
-	id, ok := s.getBookID(w, req)
+	id, ok := s.getBookID(req)
 	if !ok {
+		w.WriteHeader(403)
+		s.justError(w)
 		return
 	}
 
