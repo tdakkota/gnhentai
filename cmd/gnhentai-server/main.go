@@ -3,17 +3,19 @@ package main
 import (
 	"context"
 	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
 	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"github.com/tdakkota/gnhentai"
 	"github.com/tdakkota/gnhentai/api"
-	"github.com/tdakkota/gnhentai/cmd/gnhentai-server/server"
+	"github.com/tdakkota/gnhentai/server"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/net/proxy"
-	"log"
 	"net"
 	"net/http"
 	"net/url"
 	"os"
+	"time"
 )
 
 type App struct {
@@ -74,9 +76,28 @@ func (app *App) setup(c *cli.Context) error {
 }
 
 func (app *App) run(c *cli.Context) error {
+	r := app.setupServer(c)
+	bind := c.String("bind")
+	log.Info().Str("addr", bind).Msgf("API server listening on %s", bind)
+	return http.ListenAndServe(bind, r)
+}
+
+func (app *App) setupServer(c *cli.Context) http.Handler {
 	r := chi.NewRouter()
-	server.NewServer(app.client, app.downloader, server.WithLogger(zerolog.New(os.Stdout))).Register(r)
-	return http.ListenAndServe(c.String("bind"), r)
+
+	logger := zerolog.New(os.Stdout)
+	r.Use(
+		server.Logger(logger),
+		middleware.Timeout(30*time.Second),
+	)
+
+	server.NewServer(
+		app.client,
+		app.downloader,
+		server.WithLogger(logger),
+	).Register(r)
+
+	return r
 }
 
 func (app *App) commands() []*cli.Command {
@@ -86,8 +107,10 @@ func (app *App) commands() []*cli.Command {
 			Description: "runs server",
 			Flags: []cli.Flag{
 				&cli.StringFlag{
-					Name:  "bind",
-					Usage: "addr to bind",
+					Name:     "bind",
+					Required: false,
+					Value:    ":8080",
+					Usage:    "addr to bind",
 				},
 			},
 			Action: app.run,
@@ -122,6 +145,7 @@ func (app *App) Run(args []string) error {
 
 func main() {
 	if err := NewApp().Run(os.Args); err != nil {
-		log.Fatal(err)
+		log.Error().Err(err).Msg("failed")
+		os.Exit(-1)
 	}
 }
