@@ -21,7 +21,7 @@ go get github.com/tdakkota/gnhentai
 ```
 
 ## Use as app
-Install and run (`GOBIN` should be int `PATH`)
+Install and run (`GOBIN` should be in `PATH`), it will download random book in dir
 
 ```
 gnhentai-cli download 
@@ -33,5 +33,10 @@ or
 gnhentai-cli download --id=<your_manga_id>
 ```
 
+## Use API server
+
+```
+gnhentai-server run --bind=<bind_addr, default is :8080> 
+```
 
 [go-modules]: https://github.com/golang/go/wiki/Modules
