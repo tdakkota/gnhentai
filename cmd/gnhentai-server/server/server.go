@@ -11,13 +11,20 @@ import (
 )
 
 type Server struct {
+	cache      Cache
 	client     gnhentai.Client
 	downloader gnhentai.Downloader
 	log        zerolog.Logger
 }
 
-func NewServer(client gnhentai.Client, downloader gnhentai.Downloader, log zerolog.Logger) *Server {
-	return &Server{client: client, downloader: downloader, log: log}
+func NewServer(client gnhentai.Client, downloader gnhentai.Downloader, options ...Option) *Server {
+	s := &Server{client: client, downloader: downloader}
+
+	for _, opt := range options {
+		opt(s)
+	}
+
+	return s
 }
 
 func (s Server) GetBookByID(w http.ResponseWriter, req *http.Request) {

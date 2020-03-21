@@ -75,7 +75,7 @@ func (app *App) setup(c *cli.Context) error {
 
 func (app *App) run(c *cli.Context) error {
 	r := chi.NewRouter()
-	server.NewServer(app.client, app.downloader, zerolog.New(os.Stdout)).Register(r)
+	server.NewServer(app.client, app.downloader, server.WithLogger(zerolog.New(os.Stdout))).Register(r)
 	return http.ListenAndServe(c.String("bind"), r)
 }
 

@@ -89,7 +89,7 @@ func testServer() (*Server, MockClient, error) {
 		return nil, m, err
 	}
 
-	return NewServer(m, m, zerolog.New(os.Stdout)), m, nil
+	return NewServer(m, m, WithLogger(zerolog.New(os.Stdout))), m, nil
 }
 
 func chiParams(req *http.Request, params map[string]string) {
