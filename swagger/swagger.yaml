@@ -1,0 +1,298 @@
+swagger: "2.0"
+info:
+  description: "Swagger description of nhentai.net API."
+  version: "1.0.0"
+  title: "Nhentai.net API"
+host: "nhentai.net"
+tags:
+  - name: "search"
+    description: "Search books at nhentai.net"
+  - name: "book"
+    description: "Get metadata of book"
+  - name: "image"
+    description: "Get cover and pages"
+schemes:
+  - "https"
+paths:
+  /api/galleries/search:
+    get:
+      tags:
+        - "search"
+      summary: "Search for comics"
+      description: ""
+      operationId: "search"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "query"
+          name: "query"
+          description: "Search query.
+        * You can search for multiple terms at the same time, and this will return only galleries that contain both terms. For example, anal tanlines finds all galleries that contain both anal and tanlines.
+        * You can exclude terms by prefixing them with -. For example, anal tanlines -yaoi matches all galleries matching anal and tanlines but not yaoi.
+        * Exact searches can be performed by wrapping terms in double quotes. For example, \"big breasts\" only matches galleries with \"big breasts\" somewhere in the title or in tags.
+        * These can be combined with tag namespaces for finer control over the query: parodies:railgun -tag:\"big breasts\".
+        "
+          required: true
+          type: string
+        - in: "query"
+          name: "page"
+          description: "Number of result page."
+          type: "integer"
+          required: false
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/SearchResponse"
+        403:
+          description: "You need to provide a search query."
+  /api/galleries/tagged:
+    get:
+      tags:
+        - "search"
+      summary: "Search for comics by tag ID"
+      description: ""
+      operationId: "searchByTagID"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "query"
+          name: "tag_id"
+          description: "Tag ID."
+          required: true
+          type: integer
+        - in: "query"
+          name: "page"
+          description: "Number of result page."
+          type: "integer"
+          required: false
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/SearchResponse"
+        403:
+          description: "Just an error."
+  /api/gallery/{book_id}:
+    get:
+      tags:
+        - "book"
+      summary: "Gets metadata of book"
+      description: ""
+      operationId: "getBook"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "book_id"
+          in: "path"
+          description: "ID of book."
+          required: true
+          minimum: 1
+          type: "integer"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/Book"
+        403:
+          description: "Invalid status value"
+  /galleries/{media_id}/{page}.{format}:
+    get:
+      tags:
+        - "image"
+      summary: "Gets page"
+      description: ""
+      operationId: "getPageImage"
+      produces:
+        - "image/*"
+      parameters:
+        - name: "media_id"
+          in: "path"
+          description: "ID of book."
+          required: true
+          minimum: 1
+          type: "integer"
+        - name: "page"
+          in: "path"
+          description: "Number of page."
+          required: true
+          minimum: 0
+          type: "integer"
+        - name: "format"
+          in: "path"
+          description: "Image format."
+          default: "jpg"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "OK"
+        403:
+          description: "Invalid status value"
+
+  /galleries/{media_id}/{page}t.{format}:
+    get:
+      tags:
+        - "image"
+      summary: "Gets page thumbnail"
+      description: ""
+      operationId: "getPageThumbnailImage"
+      produces:
+        - "image/*"
+      parameters:
+        - name: "media_id"
+          in: "path"
+          description: "ID of book."
+          required: true
+          minimum: 1
+          type: "integer"
+        - name: "page"
+          in: "path"
+          description: "Number of page."
+          required: true
+          minimum: 0
+          type: "integer"
+        - name: "format"
+          in: "path"
+          description: "Image format."
+          default: "jpg"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "OK"
+        403:
+          description: "Invalid status value"
+
+  /galleries/{media_id}/cover.{format}:
+    get:
+      tags:
+        - "image"
+      summary: "Gets page cover"
+      description: ""
+      operationId: "getPageCoverImage"
+      produces:
+        - "image/*"
+      parameters:
+        - name: "media_id"
+          in: "path"
+          description: "ID of book."
+          required: true
+          minimum: 1
+          type: "integer"
+        - name: "format"
+          in: "path"
+          description: "Image format."
+          default: "jpg"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "OK"
+        403:
+          description: "Invalid status value"
+
+definitions:
+  Tag:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        minimum: 1
+      type:
+        type: "string"
+        enum: ["parody", "character", "tag", "artist", "group", "category", "language"]
+      name:
+        type: "string"
+      url:
+        type: "string"
+      count:
+        type: "integer"
+
+  Title:
+    type: "object"
+    properties:
+      english:
+        type: "string"
+      japanese:
+        type: "string"
+      pretty:
+        type: "string"
+
+  Image:
+    type: "object"
+    properties:
+      t:
+        type: "string"
+      w:
+        type: "integer"
+        minimum: 0
+        description: "width of image"
+      h:
+        type: "integer"
+        minimum: 0
+        description: "height of image"
+
+
+  Images:
+    type: "object"
+    properties:
+      pages:
+        type: "array"
+        items:
+          $ref: "#/definitions/Image"
+      cover:
+        $ref: "#/definitions/Image"
+      thumbnail:
+        $ref: "#/definitions/Image"
+
+
+  Book:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        minimum: 1
+      media_id:
+        type: "integer"
+        minimum: 1
+      images:
+        $ref: "#/definitions/Images"
+      title:
+        $ref: "#/definitions/Title"
+      tags:
+        type: "array"
+        items:
+          $ref: "#/definitions/Tag"
+      scanlator:
+        type: "string"
+      upload_date:
+        type: "integer"
+      num_pages:
+        type: "integer"
+        minimum: 0
+      num_favorites:
+        type: "integer"
+        minimum: 0
+
+  SearchResponse:
+    type: "object"
+    properties:
+      result:
+        type: "array"
+        items:
+          $ref: "#/definitions/Book"
+      num_pages:
+        type: "integer"
+        description: "total number of pages"
+      per_page:
+        type: "integer"
+        description: "elements on one page"
