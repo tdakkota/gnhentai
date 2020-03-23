@@ -61,8 +61,8 @@ func transportWithSocks(rawurl string) (http.RoundTripper, error) {
 func (app *App) setup(c *cli.Context) error {
 	client := http.DefaultClient
 
-	if proxyUrl := c.String("proxy"); proxyUrl != "" {
-		transport, err := transportWithSocks(proxyUrl)
+	if proxyURL := c.String("proxy"); proxyURL != "" {
+		transport, err := transportWithSocks(proxyURL)
 		if err != nil {
 			return err
 		}
@@ -77,7 +77,7 @@ func (app *App) setup(c *cli.Context) error {
 
 func (app *App) run(c *cli.Context) error {
 	r := app.setupServer(c)
-	bind := c.String("bind")
+	bind := c.String("server.bind")
 	log.Info().Str("addr", bind).Msgf("API server listening on %s", bind)
 	return http.ListenAndServe(bind, r)
 }
@@ -88,7 +88,7 @@ func (app *App) setupServer(c *cli.Context) http.Handler {
 	logger := zerolog.New(os.Stdout)
 	r.Use(
 		server.Logger(logger),
-		middleware.Timeout(30*time.Second),
+		middleware.Timeout(c.Duration("server.timeout")),
 	)
 
 	server.NewServer(
@@ -107,10 +107,16 @@ func (app *App) commands() []*cli.Command {
 			Description: "runs server",
 			Flags: []cli.Flag{
 				&cli.StringFlag{
-					Name:     "bind",
+					Name:     "server.bind",
 					Required: false,
 					Value:    ":8080",
 					Usage:    "addr to bind",
+				},
+				&cli.DurationFlag{
+					Name:     "server.timeout",
+					Required: false,
+					Value:    30 * time.Second,
+					Usage:    "server connection timeout",
 				},
 			},
 			Action: app.run,
@@ -136,7 +142,6 @@ func (app *App) cli() *cli.App {
 		Commands: app.commands(),
 		Flags:    app.flags(),
 	}
-
 }
 
 func (app *App) Run(args []string) error {

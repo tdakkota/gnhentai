@@ -30,7 +30,6 @@ func NewServer(client gnhentai.Client, downloader gnhentai.Downloader, options .
 func (s Server) GetBookByID(w http.ResponseWriter, req *http.Request) {
 	id, ok := s.getBookID(req)
 	if !ok {
-		w.WriteHeader(403)
 		s.justError(w)
 		return
 	}
@@ -54,7 +53,6 @@ func (s Server) GetBookByID(w http.ResponseWriter, req *http.Request) {
 func (s Server) GetPageByID(w http.ResponseWriter, req *http.Request) {
 	bookID, ok := s.getBookID(req)
 	if !ok {
-		w.WriteHeader(403)
 		s.justError(w)
 		return
 	}
@@ -89,7 +87,6 @@ func (s Server) GetPageByID(w http.ResponseWriter, req *http.Request) {
 func (s Server) GetCoverByID(w http.ResponseWriter, req *http.Request) {
 	bookID, ok := s.getBookID(req)
 	if !ok {
-		w.WriteHeader(403)
 		s.justError(w)
 		return
 	}
@@ -117,7 +114,6 @@ func (s Server) GetCoverByID(w http.ResponseWriter, req *http.Request) {
 func (s Server) GetThumbnailByID(w http.ResponseWriter, req *http.Request) {
 	bookID, ok := s.getBookID(req)
 	if !ok {
-		w.WriteHeader(403)
 		s.justError(w)
 		return
 	}
@@ -180,7 +176,6 @@ func (s Server) Search(w http.ResponseWriter, req *http.Request) {
 func (s Server) SearchByTag(w http.ResponseWriter, req *http.Request) {
 	tagID, err := strconv.Atoi(req.URL.Query().Get("tag_id"))
 	if err != nil {
-		w.WriteHeader(403)
 		s.justError(w)
 		return
 	}
@@ -209,7 +204,6 @@ func (s Server) SearchByTag(w http.ResponseWriter, req *http.Request) {
 func (s Server) Related(w http.ResponseWriter, req *http.Request) {
 	id, ok := s.getBookID(req)
 	if !ok {
-		w.WriteHeader(403)
 		s.justError(w)
 		return
 	}

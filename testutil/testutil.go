@@ -89,9 +89,8 @@ func TestSearchByTag(t *testing.T, constructor func(t *testing.T) gnhentai.Clien
 		if err == nil {
 			t.Error("tag does not exists - should return error")
 			return
-		} else {
-			t.Log(err)
 		}
+		t.Log(err)
 	})
 }
 
@@ -119,9 +118,8 @@ func TestRelated(t *testing.T, constructor func(t *testing.T) gnhentai.Client) {
 		if err == nil {
 			t.Error("id does not exists - should return error")
 			return
-		} else {
-			t.Log(err)
 		}
+		t.Log(err)
 	})
 }
 
@@ -189,9 +187,8 @@ func TestGetByID2(t *testing.T, constructor func(t *testing.T) gnhentai.Client) 
 		if err == nil {
 			t.Error("id does not exists - should return error")
 			return
-		} else {
-			t.Log(err)
 		}
+		t.Log(err)
 	})
 }
 

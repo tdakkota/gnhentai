@@ -21,7 +21,6 @@ func TestParseMultipleResult(t *testing.T) {
 	}
 
 	t.Log(len(result.Result), "parsed")
-
 }
 
 func TestParseResult(t *testing.T) {

@@ -132,8 +132,8 @@ func transportWithSocks(rawurl string) (http.RoundTripper, error) {
 func (app *App) setup(c *cli.Context) error {
 	client := http.DefaultClient
 
-	if proxyUrl := c.String("proxy"); proxyUrl != "" {
-		transport, err := transportWithSocks(proxyUrl)
+	if proxyURL := c.String("proxy"); proxyURL != "" {
+		transport, err := transportWithSocks(proxyURL)
 		if err != nil {
 			return err
 		}
@@ -208,7 +208,6 @@ func (app *App) cli() *cli.App {
 		Commands: app.commands(),
 		Flags:    app.flags(),
 	}
-
 }
 
 func (app *App) Run(args []string) error {

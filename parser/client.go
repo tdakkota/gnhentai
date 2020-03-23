@@ -95,6 +95,9 @@ func (c Parser) request(url string) (io.ReadCloser, error) {
 	}
 
 	if r.StatusCode != 200 {
+		if r.Body != nil {
+			_ = r.Body.Close()
+		}
 		return nil, fmt.Errorf("bad http code: %d", r.StatusCode)
 	}
 

@@ -43,6 +43,9 @@ func (c Client) randomPage() (id int, err error) {
 	if err != nil {
 		return
 	}
+	if r.Body != nil {
+		defer r.Body.Close()
+	}
 
 	u := r.Request.URL.String()
 	_, err = fmt.Sscanf(u, "https://nhentai.net/g/%d/", &id)
@@ -158,6 +161,9 @@ func (c Client) request(url string) (io.ReadCloser, error) {
 	}
 
 	if r.StatusCode != 200 {
+		if r.Body != nil {
+			_ = r.Body.Close()
+		}
 		return nil, fmt.Errorf("bad http code: %d", r.StatusCode)
 	}
 

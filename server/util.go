@@ -12,12 +12,13 @@ func getParam(name string, req *http.Request) (string, bool) {
 }
 
 func (s Server) justError(w http.ResponseWriter) {
+	w.WriteHeader(403)
 	_, _ = w.Write([]byte(`{"error": true}`))
 }
 
 func (s Server) internalServerError(w http.ResponseWriter) {
 	w.WriteHeader(500)
-	s.justError(w)
+	_, _ = w.Write([]byte(`{"error": "Internal server error ¯\_(ツ)_/¯"}`))
 }
 
 func (s Server) needQueryError(w http.ResponseWriter) {

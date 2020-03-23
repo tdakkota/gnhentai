@@ -30,7 +30,5 @@ func Logger(logger zerolog.Logger) func(http.Handler) http.Handler {
 	c = c.Append(hlog.RefererHandler("referer"))
 	c = c.Append(hlog.RequestIDHandler("req_id", "Request-Id"))
 
-	return func(handler http.Handler) http.Handler {
-		return c.Then(handler)
-	}
+	return c.Then
 }
