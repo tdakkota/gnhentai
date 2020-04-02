@@ -4,7 +4,7 @@ go 1.13
 
 require (
 	github.com/PuerkitoBio/goquery v1.5.1
-	github.com/go-chi/chi v4.0.4+incompatible
+	github.com/go-chi/chi v4.1.0+incompatible
 	github.com/justinas/alice v1.2.0
 	github.com/rs/zerolog v1.18.0
 	github.com/stretchr/testify v1.5.1
