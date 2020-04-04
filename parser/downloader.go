@@ -20,22 +20,13 @@ func ImageLink(mediaID, n int, format string) string {
 
 type Downloader struct {
 	client *http.Client
-	format string
 }
 
 func NewDownloader(client *http.Client) Downloader {
 	if client == nil {
 		client = http.DefaultClient
 	}
-	return Downloader{client: client, format: "jpg"}
-}
-
-func (d *Downloader) ImageFormat() string {
-	return d.format
-}
-
-func (d *Downloader) SetImageFormat(format string) {
-	d.format = format
+	return Downloader{client: client}
 }
 
 func (d Downloader) download(url string) (io.ReadCloser, error) {
@@ -46,14 +37,14 @@ func (d Downloader) download(url string) (io.ReadCloser, error) {
 	return r.Body, nil
 }
 
-func (d Downloader) Page(mediaID, n int) (io.ReadCloser, error) {
-	return d.download(ImageLink(mediaID, n, d.format))
+func (d Downloader) Page(mediaID, n int, format string) (io.ReadCloser, error) {
+	return d.download(ImageLink(mediaID, n, format))
 }
 
-func (d Downloader) Cover(mediaID int) (io.ReadCloser, error) {
-	return d.download(CoverLink(mediaID, d.format))
+func (d Downloader) Cover(mediaID int, format string) (io.ReadCloser, error) {
+	return d.download(CoverLink(mediaID, format))
 }
 
-func (d Downloader) Thumbnail(mediaID, n int) (io.ReadCloser, error) {
-	return d.download(ThumbnailLink(mediaID, n, d.format))
+func (d Downloader) Thumbnail(mediaID int, n int, format string) (io.ReadCloser, error) {
+	return d.download(ThumbnailLink(mediaID, n, format))
 }

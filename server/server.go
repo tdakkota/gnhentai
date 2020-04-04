@@ -62,7 +62,12 @@ func (s Server) GetPageByID(w http.ResponseWriter, req *http.Request) {
 		pageID = 0
 	}
 
-	image, err := s.downloader.Page(bookID, pageID)
+	format, ok := getParam("format", req)
+	if !ok {
+		format = "jpg"
+	}
+
+	image, err := s.downloader.Page(bookID, pageID, format)
 	if err != nil {
 		s.log.Error().Err(err).
 			Int("book_id", bookID).
@@ -91,7 +96,7 @@ func (s Server) GetCoverByID(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	image, err := s.downloader.Cover(bookID)
+	image, err := s.downloader.Cover(bookID, "")
 	if err != nil {
 		s.log.Error().Err(err).
 			Int("book_id", bookID).
@@ -123,7 +128,7 @@ func (s Server) GetThumbnailByID(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	image, err := s.downloader.Thumbnail(bookID, pageID)
+	image, err := s.downloader.Thumbnail(bookID, pageID, "")
 	if err != nil {
 		s.log.Error().Err(err).
 			Int("book_id", bookID).

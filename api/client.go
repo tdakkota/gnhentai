@@ -12,11 +12,10 @@ const BaseNHentaiAPILink = gnhentai.BaseNHentaiLink + "/api"
 
 type Client struct {
 	client *http.Client
-	format string
 }
 
 func NewClient(opts ...Option) *Client {
-	c := &Client{format: "jpg"}
+	c := &Client{}
 
 	for _, opt := range opts {
 		opt(c)
@@ -142,16 +141,16 @@ func (c Client) requestSearch(url string) ([]gnhentai.Doujinshi, error) {
 	return result.Result, nil
 }
 
-func (c Client) Page(mediaID, n int) (io.ReadCloser, error) {
-	return c.request(fmt.Sprintf("%s/galleries/%d/%d.%s", gnhentai.BaseNHentaiLink, mediaID, n, c.format))
+func (c Client) Page(mediaID, n int, format string) (io.ReadCloser, error) {
+	return c.request(fmt.Sprintf("%s/galleries/%d/%d.%s", gnhentai.BaseNHentaiLink, mediaID, n, format))
 }
 
-func (c Client) Thumbnail(mediaID int, n int) (io.ReadCloser, error) {
-	return c.request(fmt.Sprintf("%s/galleries/%d/%dt.%s", gnhentai.BaseNHentaiLink, mediaID, n, c.format))
+func (c Client) Thumbnail(mediaID int, n int, format string) (io.ReadCloser, error) {
+	return c.request(fmt.Sprintf("%s/galleries/%d/%dt.%s", gnhentai.BaseNHentaiLink, mediaID, n, format))
 }
 
-func (c Client) Cover(mediaID int) (io.ReadCloser, error) {
-	return c.request(fmt.Sprintf("%s/galleries/%d/cover.%s", gnhentai.BaseNHentaiLink, mediaID, c.format))
+func (c Client) Cover(mediaID int, format string) (io.ReadCloser, error) {
+	return c.request(fmt.Sprintf("%s/galleries/%d/cover.%s", gnhentai.BaseNHentaiLink, mediaID, format))
 }
 
 func (c Client) request(url string) (io.ReadCloser, error) {

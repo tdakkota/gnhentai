@@ -33,21 +33,21 @@ func (m MockClient) TestString() string {
 	return string(m.Test())
 }
 
-func (m MockClient) Page(mediaID, n int) (io.ReadCloser, error) {
+func (m MockClient) Page(mediaID, n int, format string) (io.ReadCloser, error) {
 	if mediaID == 13 {
 		return nil, errors.New("i'm superstitious")
 	}
 	return ioutil.NopCloser(bytes.NewBufferString("pretty page")), nil
 }
 
-func (m MockClient) Thumbnail(mediaID int, n int) (io.ReadCloser, error) {
+func (m MockClient) Thumbnail(mediaID int, n int, format string) (io.ReadCloser, error) {
 	if mediaID == 13 {
 		return nil, errors.New("i'm superstitious")
 	}
 	return ioutil.NopCloser(bytes.NewBufferString("pretty thumbnail")), nil
 }
 
-func (m MockClient) Cover(mediaID int) (io.ReadCloser, error) {
+func (m MockClient) Cover(mediaID int, format string) (io.ReadCloser, error) {
 	if mediaID == 13 {
 		return nil, errors.New("i'm superstitious")
 	}

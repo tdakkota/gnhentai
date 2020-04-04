@@ -6,19 +6,35 @@ import (
 )
 
 type Downloader interface {
-	Page(mediaID, n int) (io.ReadCloser, error)
-	Thumbnail(mediaID int, n int) (io.ReadCloser, error)
-	Cover(mediaID int) (io.ReadCloser, error)
+	Page(mediaID, n int, format string) (io.ReadCloser, error)
+	Thumbnail(mediaID int, n int, format string) (io.ReadCloser, error)
+	Cover(mediaID int, format string) (io.ReadCloser, error)
 }
 
-func downloadOne(downloader Downloader, mediaID, i int, name string) error {
+func FormatFromImage(image Image) string {
+	switch image.T {
+	case "j":
+		return "jpg"
+	case "p":
+		return "png"
+	}
+
+	return ""
+}
+
+func downloadOne(downloader Downloader, d Doujinshi, i int, name string) error {
 	file, err := os.OpenFile(name, os.O_RDWR|os.O_CREATE, 0755)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 
-	r, err := downloader.Page(mediaID, i+1)
+	format := FormatFromImage(d.Images.Pages[i])
+	if format == "" {
+		format = "jpg"
+	}
+
+	r, err := downloader.Page(d.MediaID, i+1, format)
 	if err != nil {
 		return err
 	}
@@ -31,7 +47,7 @@ func downloadOne(downloader Downloader, mediaID, i int, name string) error {
 func DownloadAll(downloader Downloader, d Doujinshi, namer func(i int, d Doujinshi) string) error {
 	for i := 0; i < d.NumPages; i++ {
 		name := namer(i+1, d)
-		if err := downloadOne(downloader, d.MediaID, i+1, name); err != nil {
+		if err := downloadOne(downloader, d, i+1, name); err != nil {
 			return err
 		}
 	}
