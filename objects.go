@@ -34,9 +34,12 @@ type Images struct {
 }
 
 type Title struct {
-	English  string `json:"english"`
+	// English name of book
+	English string `json:"english"`
+	// Japanese name of book
 	Japanese string `json:"japanese"`
-	Pretty   string `json:"pretty"`
+	// Pretty(does not contain some characters) english name of book
+	Pretty string `json:"pretty"`
 }
 
 // JSONTimestamp
@@ -58,8 +61,10 @@ func (t *JSONTimestamp) UnmarshalJSON(b []byte) error {
 type Doujinshi struct {
 	// ID is unique identification number of Doujinshi.
 	// Note: parser does not parse ID of Doujinshi.
-	ID        int    `json:"id"`
-	MediaID   int    `json:"media_id"`
+	ID int `json:"id"`
+	// MediaID is unique identification number of Doujinshi images.
+	MediaID int `json:"media_id"`
+	// Title structure
 	Title     Title  `json:"title"`
 	Tags      []Tag  `json:"tags"`
 	Scanlator string `json:"scanlator"`
@@ -67,7 +72,19 @@ type Doujinshi struct {
 	NumPages     int       `json:"num_pages"`
 	NumFavorites int       `json:"num_favorites"`
 	UploadDate   time.Time `json:"upload_date"`
-	Images       Images    `json:"images"`
+
+	Images Images `json:"images"`
+}
+
+func (d Doujinshi) Name() string {
+	switch {
+	case d.Title.Pretty != "":
+		return d.Title.Pretty
+	case d.Title.English != "":
+		return d.Title.English
+	default:
+		return d.Title.Japanese
+	}
 }
 
 func (d *Doujinshi) UnmarshalJSON(data []byte) error {

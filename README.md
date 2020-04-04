@@ -20,8 +20,61 @@ This library is packaged using [Go modules][go-modules]. You can get it via:
 go get github.com/tdakkota/gnhentai
 ```
 
-## Use as app
-Install and run (`GOBIN` should be in `PATH`), it will download random book in dir
+## Use as lib
+
+There are two implementations of `gnhentai.Client`:
+- `api.Client` which uses NHentai API 
+- `parser.Parser` which parses NHentai web pages using `goquery`
+
+I recommend you to use API version, it is more stable.
+
+[Example](https://github.com/tdakkota/gnhentai/tree/master/examples/download-random-cover/main.go)
+```go
+package main
+
+import (
+	"fmt"
+	"github.com/tdakkota/gnhentai"
+	"github.com/tdakkota/gnhentai/api"
+	"io"
+	"os"
+)
+
+func main() {
+	c := api.NewClient()
+
+	doujinshi, err := c.Random()
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println("Downloading", doujinshi.Name())
+	fmt.Println("Tags:")
+	for _, tag := range doujinshi.Tags {
+		fmt.Println(" - ", tag.Name)
+	}
+
+	format := gnhentai.FormatFromImage(doujinshi.Images.Cover)
+	cover, err := c.Cover(doujinshi.MediaID, format)
+	if err != nil {
+		panic(err)
+	}
+
+	f, err := os.Create(fmt.Sprintf("cover_%d.%s", doujinshi.MediaID, format))
+	if err != nil {
+		panic(err)
+	}
+
+	_, err = io.Copy(f, cover)
+	if err != nil {
+		panic(err)
+	}
+}
+
+```
+
+## gnhentai-cli 
+Install and run (`GOBIN` should be in `PATH`), it will download random book into current dir
 
 ```
 gnhentai-cli download 
@@ -38,5 +91,11 @@ gnhentai-cli download --id=<your_manga_id>
 ```
 gnhentai-server run --bind=<bind_addr, default is :8080> 
 ```
+
+## Related
+
+- [Swagger file](https://gist.github.com/tdakkota/6efa100de2000549027617b1a1088d78)
+- [Unofficial API Docs](https://edgyboi2414.github.io/nhentai-api)
+
 
 [go-modules]: https://github.com/golang/go/wiki/Modules
