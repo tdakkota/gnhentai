@@ -24,7 +24,9 @@ script:
   - go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
   # test cli client
   - go run cmd/gnhentai-cli/main.go random
-  - go run cmd/gnhentai-cli/main.go download --id=305632
+  - go run cmd/gnhentai-cli/main.go download --id=305631
+  # run example
+  - go run ./examples/download-random-cover
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
