@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/tdakkota/gnhentai"
 	"github.com/tdakkota/gnhentai/api"
+	"github.com/tdakkota/gnhentai/downloaders"
 	"github.com/tdakkota/gnhentai/parser"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/net/proxy"
@@ -19,7 +20,8 @@ import (
 )
 
 type App struct {
-	client gnhentai.Client
+	client     gnhentai.Client
+	downloader gnhentai.Downloader
 }
 
 func NewApp() *App {
@@ -82,8 +84,7 @@ func (app *App) download(c *cli.Context) (err error) {
 		dir = strconv.Itoa(id)
 	}
 
-	d := parser.NewDownloader(nil)
-	err = gnhentai.DownloadAll(d, doujinshi, func(i int, d gnhentai.Doujinshi) string {
+	err = gnhentai.DownloadAll(app.downloader, doujinshi, func(i int, d gnhentai.Doujinshi) string {
 		return filepath.Join(dir, fmt.Sprintf("%d.jpg", i))
 	})
 	if err != nil {
@@ -145,6 +146,8 @@ func (app *App) setup(c *cli.Context) error {
 	} else {
 		app.client = parser.NewParser(parser.WithClient(client))
 	}
+
+	app.downloader = downloaders.NewSimpleDownloader(client)
 
 	return nil
 }
