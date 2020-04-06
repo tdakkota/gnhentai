@@ -23,12 +23,15 @@ func main() {
 	}
 
 	format := gnhentai.FormatFromImage(doujinshi.Images.Cover)
+	filename := fmt.Sprintf("cover_%d.%s", doujinshi.MediaID, format)
+	fmt.Println("Downloading cover:", filename)
+
 	cover, err := c.Cover(doujinshi.MediaID, format)
 	if err != nil {
 		panic(err)
 	}
 
-	f, err := os.Create(fmt.Sprintf("cover_%d.%s", doujinshi.MediaID, format))
+	f, err := os.Create(filename)
 	if err != nil {
 		panic(err)
 	}
