@@ -8,7 +8,8 @@ import (
 )
 
 func getParam(name string, req *http.Request) (string, bool) {
-	return chi.URLParam(req, name), name != ""
+	v := chi.URLParam(req, name)
+	return v, v != ""
 }
 
 func (s Server) justError(w http.ResponseWriter) {
