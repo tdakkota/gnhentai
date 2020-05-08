@@ -172,7 +172,12 @@ func TestGetByID(t *testing.T, constructor func(t *testing.T) gnhentai.Client) {
 
 			require.Equal(t, data.Title.English, doujinshi.Title.English)
 			require.NotEmpty(t, data.Tags)
-			require.Equal(t, data.Tags[0].Name, doujinshi.Tags[0].Name)
+
+			names := make([]string, len(data.Tags))
+			for i := range names {
+				names[i] = data.Tags[i].Name
+			}
+			require.Contains(t, names, doujinshi.Tags[0].Name)
 		})
 	}
 }
