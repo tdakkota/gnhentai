@@ -2,6 +2,12 @@ package main
 
 import (
 	"context"
+	"net"
+	"net/http"
+	"net/url"
+	"os"
+	"time"
+
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/rs/zerolog"
@@ -11,11 +17,6 @@ import (
 	"github.com/tdakkota/gnhentai/server"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/net/proxy"
-	"net"
-	"net/http"
-	"net/url"
-	"os"
-	"time"
 )
 
 type App struct {

@@ -1,8 +1,9 @@
 package server
 
 import (
-	"github.com/tdakkota/gnhentai"
 	"io"
+
+	"github.com/tdakkota/gnhentai"
 )
 
 type Cache interface {

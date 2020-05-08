@@ -4,12 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/tdakkota/gnhentai"
-	"github.com/tdakkota/gnhentai/api"
-	"github.com/tdakkota/gnhentai/downloaders"
-	"github.com/tdakkota/gnhentai/parser"
-	"github.com/urfave/cli/v2"
-	"golang.org/x/net/proxy"
 	"log"
 	"net"
 	"net/http"
@@ -17,6 +11,13 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+
+	"github.com/tdakkota/gnhentai"
+	"github.com/tdakkota/gnhentai/api"
+	"github.com/tdakkota/gnhentai/downloaders"
+	"github.com/tdakkota/gnhentai/parser"
+	"github.com/urfave/cli/v2"
+	"golang.org/x/net/proxy"
 )
 
 type App struct {
@@ -66,26 +67,40 @@ func (app *App) get(c *cli.Context) error {
 	return nil
 }
 
-func (app *App) download(c *cli.Context) (err error) {
+func (app *App) getDoujinshi(c *cli.Context) (doujinshi gnhentai.Doujinshi, dir string, err error) {
 	id, dir := c.Int("id"), c.String("dir")
 
-	var doujinshi gnhentai.Doujinshi
 	if id != 0 {
 		doujinshi, err = app.client.ByID(id)
 	} else {
 		doujinshi, err = app.client.Random()
 	}
 	if err != nil {
-		return err
+		return doujinshi, "", err
 	}
 
-	id = doujinshi.ID
 	if dir == "" {
 		dir = strconv.Itoa(id)
 	}
 
+	return
+}
+
+func (app *App) download(c *cli.Context) (err error) {
+	doujinshi, dir, err := app.getDoujinshi(c)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("Downloading", doujinshi.Name())
+	fmt.Println("Tags:")
+	for _, tag := range doujinshi.Tags {
+		fmt.Println(" - ", tag.Name)
+	}
+
 	err = gnhentai.DownloadAll(app.downloader, doujinshi, func(i int, d gnhentai.Doujinshi) string {
-		return filepath.Join(dir, fmt.Sprintf("%d.jpg", i))
+		format := gnhentai.FormatFromImage(doujinshi.Images.Pages[i])
+		return filepath.Join(dir, fmt.Sprintf("%d.%s", i, format))
 	})
 	if err != nil {
 		return err

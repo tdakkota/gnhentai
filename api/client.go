@@ -3,9 +3,10 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/tdakkota/gnhentai"
 	"io"
 	"net/http"
+
+	"github.com/tdakkota/gnhentai"
 )
 
 const BaseNHentaiAPILink = gnhentai.BaseNHentaiLink + "/api"

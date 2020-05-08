@@ -2,9 +2,10 @@ package parser
 
 import (
 	"fmt"
-	"github.com/tdakkota/gnhentai"
 	"io"
 	"net/http"
+
+	"github.com/tdakkota/gnhentai"
 )
 
 type Parser struct {

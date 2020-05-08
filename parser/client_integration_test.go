@@ -1,9 +1,10 @@
 package parser
 
 import (
+	"testing"
+
 	"github.com/tdakkota/gnhentai"
 	"github.com/tdakkota/gnhentai/testutil"
-	"testing"
 )
 
 func newParser(t *testing.T) gnhentai.Client {

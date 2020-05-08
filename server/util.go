@@ -1,10 +1,11 @@
 package server
 
 import (
-	"github.com/go-chi/chi"
 	"io"
 	"net/http"
 	"strconv"
+
+	"github.com/go-chi/chi"
 )
 
 func getParam(name string, req *http.Request) (string, bool) {

@@ -1,9 +1,10 @@
 package downloaders
 
 import (
-	"github.com/tdakkota/gnhentai"
 	"io"
 	"net/http"
+
+	"github.com/tdakkota/gnhentai"
 )
 
 type SimpleDownloader struct {

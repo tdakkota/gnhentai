@@ -3,11 +3,12 @@ package parser
 import (
 	"errors"
 	"fmt"
-	"github.com/PuerkitoBio/goquery"
-	"github.com/tdakkota/gnhentai"
 	"io"
 	"strings"
 	"time"
+
+	"github.com/PuerkitoBio/goquery"
+	"github.com/tdakkota/gnhentai"
 )
 
 func ParseComic(r io.Reader) (gnhentai.Doujinshi, error) {

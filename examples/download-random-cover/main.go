@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/tdakkota/gnhentai"
-	"github.com/tdakkota/gnhentai/api"
 	"io"
 	"os"
+
+	"github.com/tdakkota/gnhentai"
+	"github.com/tdakkota/gnhentai/api"
 )
 
 func main() {

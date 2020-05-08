@@ -1,11 +1,12 @@
 package server
 
 import (
+	"net/http"
+	"time"
+
 	"github.com/justinas/alice"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/hlog"
-	"net/http"
-	"time"
 )
 
 func Logger(logger zerolog.Logger) func(http.Handler) http.Handler {

@@ -1,9 +1,10 @@
 package api
 
 import (
+	"testing"
+
 	"github.com/tdakkota/gnhentai"
 	"github.com/tdakkota/gnhentai/testutil"
-	"testing"
 )
 
 func newClient(t *testing.T) gnhentai.Client {

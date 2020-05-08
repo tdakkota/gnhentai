@@ -5,10 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/go-chi/chi"
-	"github.com/rs/zerolog"
-	"github.com/stretchr/testify/require"
-	"github.com/tdakkota/gnhentai"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -18,6 +14,11 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/go-chi/chi"
+	"github.com/rs/zerolog"
+	"github.com/stretchr/testify/require"
+	"github.com/tdakkota/gnhentai"
 )
 
 type MockClient struct {

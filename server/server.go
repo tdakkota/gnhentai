@@ -2,12 +2,13 @@ package server
 
 import (
 	"encoding/json"
-	"github.com/go-chi/chi"
-	"github.com/rs/zerolog"
-	"github.com/tdakkota/gnhentai"
 	"io"
 	"net/http"
 	"strconv"
+
+	"github.com/go-chi/chi"
+	"github.com/rs/zerolog"
+	"github.com/tdakkota/gnhentai"
 )
 
 type Server struct {

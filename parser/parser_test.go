@@ -3,12 +3,13 @@ package parser
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/PuerkitoBio/goquery"
-	"github.com/stretchr/testify/require"
-	"github.com/tdakkota/gnhentai"
 	"os"
 	"strconv"
 	"testing"
+
+	"github.com/PuerkitoBio/goquery"
+	"github.com/stretchr/testify/require"
+	"github.com/tdakkota/gnhentai"
 )
 
 func Test_parseBaseTag(t *testing.T) {

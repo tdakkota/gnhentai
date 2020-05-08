@@ -2,11 +2,12 @@ package testutil
 
 import (
 	"encoding/json"
-	"github.com/stretchr/testify/require"
-	"github.com/tdakkota/gnhentai"
 	"os"
 	"strconv"
 	"testing"
+
+	"github.com/stretchr/testify/require"
+	"github.com/tdakkota/gnhentai"
 )
 
 func TestRandom(t *testing.T, constructor func(t *testing.T) gnhentai.Client) {
