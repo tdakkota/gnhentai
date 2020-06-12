@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/url"
 	"strings"
 	"time"
 
@@ -57,15 +58,25 @@ func parseComic(doc *goquery.Selection) (result gnhentai.Doujinshi, err error) {
 	})
 
 	if link, ok := absoluteBaseLink(doc.Find("#cover a"), "href"); ok {
+		u, err := url.Parse(link)
+		if err != nil {
+			return result, fmt.Errorf("failed to parse cover link in '%s': %v", link, err)
+		}
+
 		var n int
-		_, err = fmt.Sscanf(link, "https://nhentai.net/g/%d/%d/", &result.ID, &n)
+		_, err = fmt.Sscanf(u.Path, "/g/%d/%d/", &result.ID, &n)
 		if err != nil {
 			return result, fmt.Errorf("failed to parse cover link in '%s': %v", link, err)
 		}
 	}
 
 	if link, ok := absoluteBaseLink(doc.Find("#cover a img"), "data-src"); ok {
-		_, err = fmt.Sscanf(link, "https://t.nhentai.net/galleries/%d/cover", &result.MediaID)
+		u, err := url.Parse(link)
+		if err != nil {
+			return result, fmt.Errorf("failed to parse cover link in '%s': %v", link, err)
+		}
+
+		_, err = fmt.Sscanf(u.Path, "/galleries/%d/cover", &result.MediaID)
 		if err != nil {
 			return result, fmt.Errorf("failed to parse cover link in '%s': %v", link, err)
 		}
