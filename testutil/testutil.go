@@ -13,7 +13,9 @@ import (
 func TestRandom(t *testing.T, constructor func(t *testing.T) gnhentai.Client) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
+		return
 	}
+	t.Helper()
 
 	c := constructor(t)
 	h, err := c.Random()
@@ -28,7 +30,9 @@ func TestRandom(t *testing.T, constructor func(t *testing.T) gnhentai.Client) {
 func TestSearch(t *testing.T, constructor func(t *testing.T) gnhentai.Client) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
+		return
 	}
+	t.Helper()
 
 	t.Run("first-page", func(t *testing.T) {
 		c := constructor(t)
@@ -58,7 +62,9 @@ func TestSearch(t *testing.T, constructor func(t *testing.T) gnhentai.Client) {
 func TestSearchByTag(t *testing.T, constructor func(t *testing.T) gnhentai.Client) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
+		return
 	}
+	t.Helper()
 
 	t.Run("first-page", func(t *testing.T) {
 		c := constructor(t)
@@ -98,7 +104,9 @@ func TestSearchByTag(t *testing.T, constructor func(t *testing.T) gnhentai.Clien
 func TestRelated(t *testing.T, constructor func(t *testing.T) gnhentai.Client) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
+		return
 	}
+	t.Helper()
 
 	t.Run("get from 305329", func(t *testing.T) {
 		c := constructor(t)
@@ -127,7 +135,9 @@ func TestRelated(t *testing.T, constructor func(t *testing.T) gnhentai.Client) {
 func TestGetByID(t *testing.T, constructor func(t *testing.T) gnhentai.Client) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
+		return
 	}
+	t.Helper()
 
 	dataFile, err := os.Open("../testdata/integration.json")
 	if err != nil {
@@ -172,6 +182,7 @@ func TestGetByID(t *testing.T, constructor func(t *testing.T) gnhentai.Client) {
 
 			require.Equal(t, data.Title.English, doujinshi.Title.English)
 			require.NotEmpty(t, data.Tags)
+			require.NotEmpty(t, doujinshi.Tags)
 
 			names := make([]string, len(data.Tags))
 			for i := range names {
@@ -185,7 +196,9 @@ func TestGetByID(t *testing.T, constructor func(t *testing.T) gnhentai.Client) {
 func TestGetByID2(t *testing.T, constructor func(t *testing.T) gnhentai.Client) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
+		return
 	}
+	t.Helper()
 
 	t.Run("id-does-not-exists", func(t *testing.T) {
 		c := constructor(t)
@@ -201,7 +214,9 @@ func TestGetByID2(t *testing.T, constructor func(t *testing.T) gnhentai.Client) 
 func TestDownloader(t *testing.T, constructor func(t *testing.T) gnhentai.Downloader) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
+		return
 	}
+	t.Helper()
 
 	t.Run("download-305329", func(t *testing.T) {
 		d := constructor(t)
