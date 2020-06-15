@@ -34,30 +34,32 @@ func (m MockClient) TestString() string {
 	return string(m.Test())
 }
 
+var ErrVeryUseful = errors.New("i'm superstitious")
+
 func (m MockClient) Page(mediaID, n int, format string) (io.ReadCloser, error) {
 	if mediaID == 13 {
-		return nil, errors.New("i'm superstitious")
+		return nil, ErrVeryUseful
 	}
 	return ioutil.NopCloser(bytes.NewBufferString("pretty page")), nil
 }
 
 func (m MockClient) Thumbnail(mediaID int, n int, format string) (io.ReadCloser, error) {
 	if mediaID == 13 {
-		return nil, errors.New("i'm superstitious")
+		return nil, ErrVeryUseful
 	}
 	return ioutil.NopCloser(bytes.NewBufferString("pretty thumbnail")), nil
 }
 
 func (m MockClient) Cover(mediaID int, format string) (io.ReadCloser, error) {
 	if mediaID == 13 {
-		return nil, errors.New("i'm superstitious")
+		return nil, ErrVeryUseful
 	}
 	return ioutil.NopCloser(bytes.NewBufferString("pretty cover")), nil
 }
 
 func (m MockClient) ByID(id int) (gnhentai.Doujinshi, error) {
 	if id == 13 {
-		return m.test, errors.New("i'm superstitious")
+		return m.test, ErrVeryUseful
 	}
 	return m.test, nil
 }

@@ -29,7 +29,7 @@ func parseComic(doc *goquery.Selection) (result gnhentai.Doujinshi, err error) {
 	if datetime, ok := uploaded.Attr("datetime"); ok {
 		result.UploadDate, err = time.Parse(time.RFC3339Nano, datetime)
 		if err != nil {
-			return result, fmt.Errorf("failed to parse timestamp: %v", err)
+			return result, fmt.Errorf("failed to parse timestamp: %w", err)
 		}
 	}
 
@@ -57,28 +57,32 @@ func parseComic(doc *goquery.Selection) (result gnhentai.Doujinshi, err error) {
 		return true
 	})
 
+	if err != nil {
+		return result, fmt.Errorf("failed to parse tags: %w", err)
+	}
+
 	if link, ok := absoluteBaseLink(doc.Find("#cover a"), "href"); ok {
 		u, err := url.Parse(link)
 		if err != nil {
-			return result, fmt.Errorf("failed to parse cover link in '%s': %v", link, err)
+			return result, fmt.Errorf("failed to parse cover link in '%s': %w", link, err)
 		}
 
 		var n int
 		_, err = fmt.Sscanf(u.Path, "/g/%d/%d/", &result.ID, &n)
 		if err != nil {
-			return result, fmt.Errorf("failed to parse cover link in '%s': %v", link, err)
+			return result, fmt.Errorf("failed to parse cover link in '%s': %w", link, err)
 		}
 	}
 
 	if link, ok := absoluteBaseLink(doc.Find("#cover a img"), "data-src"); ok {
 		u, err := url.Parse(link)
 		if err != nil {
-			return result, fmt.Errorf("failed to parse cover link in '%s': %v", link, err)
+			return result, fmt.Errorf("failed to parse cover link in '%s': %w", link, err)
 		}
 
 		_, err = fmt.Sscanf(u.Path, "/galleries/%d/cover", &result.MediaID)
 		if err != nil {
-			return result, fmt.Errorf("failed to parse cover link in '%s': %v", link, err)
+			return result, fmt.Errorf("failed to parse cover link in '%s': %w", link, err)
 		}
 	}
 
@@ -102,9 +106,10 @@ func parseTag(link *goquery.Selection) (result gnhentai.Tag, err error) {
 	countNode := link.Find(".count").First()
 
 	counterText := strings.Join(strings.Split(countNode.Text(), ","), "")
-	_, err = fmt.Sscanf(counterText, "(%d)", &result.Count)
+
+	_, err = fmt.Sscanf(counterText, "%d", &result.Count)
 	if err != nil {
-		return result, fmt.Errorf("failed to parse counter: %v", err)
+		return result, fmt.Errorf("failed to parse counter `%s`: %w", counterText, err)
 	}
 	countNode.Remove()
 
@@ -116,7 +121,7 @@ func parseTag(link *goquery.Selection) (result gnhentai.Tag, err error) {
 	if class, ok := link.Attr("class"); ok {
 		_, err = fmt.Sscanf(class, "tag tag-%d", &result.ID)
 		if err != nil {
-			return result, fmt.Errorf("failed to parse ID: %v", err)
+			return result, fmt.Errorf("failed to parse ID: %w", err)
 		}
 	} else {
 		return result, ErrNoID
@@ -208,14 +213,14 @@ func parseGallery(gallery *goquery.Selection) (result gnhentai.Doujinshi, err er
 	if link, ok := absoluteBaseLink(gallery.Find("a").First(), "href"); ok {
 		_, err = fmt.Sscanf(link, "https://nhentai.net/g/%d/", &result.ID)
 		if err != nil {
-			return result, fmt.Errorf("failed to parse doujinshi link in '%s': %v", link, err)
+			return result, fmt.Errorf("failed to parse doujinshi link in '%s': %w", link, err)
 		}
 	}
 
 	if link, ok := absoluteBaseLink(gallery.Find("img").First(), "data-src"); ok {
 		_, err = fmt.Sscanf(link, "https://t.nhentai.net/galleries/%d/thumb", &result.MediaID)
 		if err != nil {
-			return result, fmt.Errorf("failed to parse cover link in '%s': %v", link, err)
+			return result, fmt.Errorf("failed to parse cover link in '%s': %w", link, err)
 		}
 	}
 

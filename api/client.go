@@ -50,7 +50,7 @@ func (c Client) randomPage() (id int, err error) {
 	u := r.Request.URL.String()
 	_, err = fmt.Sscanf(u, "https://nhentai.net/g/%d/", &id)
 	if err != nil {
-		return 0, fmt.Errorf("failed to parse ID in %s: %v", u, err)
+		return 0, fmt.Errorf("failed to parse ID in %s: %w", u, err)
 	}
 
 	return
@@ -59,7 +59,7 @@ func (c Client) randomPage() (id int, err error) {
 func (c Client) Random() (gnhentai.Doujinshi, error) {
 	id, err := c.randomPage()
 	if err != nil {
-		return gnhentai.Doujinshi{}, fmt.Errorf("failed to get random doujinshi: %v", err)
+		return gnhentai.Doujinshi{}, fmt.Errorf("failed to get random doujinshi: %w", err)
 	}
 	return c.ByID(id)
 }
@@ -79,7 +79,7 @@ func (c Client) requestComic(url string) (d gnhentai.Doujinshi, err error) {
 	}
 
 	if result.Error != "" {
-		err = fmt.Errorf("api error: %s", result.Error)
+		err = Error{result.Error}
 		return
 	}
 
@@ -136,7 +136,7 @@ func (c Client) requestSearch(url string) ([]gnhentai.Doujinshi, error) {
 	}
 
 	if result.Error != "" {
-		return nil, fmt.Errorf("api error: %s", result.Error)
+		return nil, Error{result.Error}
 	}
 
 	return result.Result, nil

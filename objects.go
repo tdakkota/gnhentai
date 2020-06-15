@@ -103,13 +103,13 @@ func (d *Doujinshi) UnmarshalJSON(data []byte) error {
 
 	ID, err := correctStruct.MediaID.Int64()
 	if err != nil {
-		return fmt.Errorf("failed to parse ID from '%s': %v", correctStruct.MediaID, err)
+		return fmt.Errorf("failed to parse ID from '%s': %w", correctStruct.MediaID, err)
 	}
 	d.ID = int(ID)
 
 	mediaID, err := correctStruct.MediaID.Int64()
 	if err != nil {
-		return fmt.Errorf("failed to parse media ID from '%s': %v", correctStruct.MediaID, err)
+		return fmt.Errorf("failed to parse media ID from '%s': %w", correctStruct.MediaID, err)
 	}
 	d.MediaID = int(mediaID)
 
