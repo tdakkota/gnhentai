@@ -8,6 +8,6 @@ require (
 	github.com/justinas/alice v1.2.0
 	github.com/rs/zerolog v1.26.0
 	github.com/stretchr/testify v1.7.0
-	github.com/urfave/cli/v2 v2.3.0
+	github.com/urfave/cli/v2 v2.10.3
 	golang.org/x/net v0.0.0-20210805182204-aaa1db679c0d
 )
