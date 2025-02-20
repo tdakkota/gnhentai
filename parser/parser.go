@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+
 	"github.com/tdakkota/gnhentai"
 )
 

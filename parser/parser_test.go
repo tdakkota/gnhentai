@@ -9,6 +9,7 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/stretchr/testify/require"
+
 	"github.com/tdakkota/gnhentai"
 )
 

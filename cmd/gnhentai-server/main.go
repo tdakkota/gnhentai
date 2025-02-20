@@ -12,11 +12,12 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"github.com/urfave/cli/v2"
+	"golang.org/x/net/proxy"
+
 	"github.com/tdakkota/gnhentai"
 	"github.com/tdakkota/gnhentai/api"
 	"github.com/tdakkota/gnhentai/server"
-	"github.com/urfave/cli/v2"
-	"golang.org/x/net/proxy"
 )
 
 type App struct {

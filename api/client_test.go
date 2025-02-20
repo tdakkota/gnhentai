@@ -3,11 +3,13 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/stretchr/testify/require"
-	"github.com/tdakkota/gnhentai"
 	"os"
 	"strconv"
 	"testing"
+
+	"github.com/stretchr/testify/require"
+
+	"github.com/tdakkota/gnhentai"
 )
 
 func TestParseMultipleResult(t *testing.T) {

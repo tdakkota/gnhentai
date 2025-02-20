@@ -12,12 +12,13 @@ import (
 	"path/filepath"
 	"strconv"
 
+	"github.com/urfave/cli/v2"
+	"golang.org/x/net/proxy"
+
 	"github.com/tdakkota/gnhentai"
 	"github.com/tdakkota/gnhentai/api"
 	"github.com/tdakkota/gnhentai/downloaders"
 	"github.com/tdakkota/gnhentai/parser"
-	"github.com/urfave/cli/v2"
-	"golang.org/x/net/proxy"
 )
 
 type App struct {

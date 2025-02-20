@@ -65,8 +65,8 @@ func downloadOne(downloader Downloader, d Doujinshi, i int, name string) error {
 	return err
 }
 
-/// Downloads all pages of passed Doujinshi, using downloader
-/// The filename is specified by namer callback
+// / Downloads all pages of passed Doujinshi, using downloader
+// / The filename is specified by namer callback
 func DownloadAll(downloader Downloader, d Doujinshi, namer func(i int, d Doujinshi) string) error {
 	for i := 0; i < d.NumPages; i++ {
 		name := namer(i+1, d)

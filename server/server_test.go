@@ -18,6 +18,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/require"
+
 	"github.com/tdakkota/gnhentai"
 )
 
