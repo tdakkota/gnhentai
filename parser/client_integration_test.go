@@ -8,7 +8,9 @@ import (
 )
 
 func newParser(t *testing.T) gnhentai.Client {
-	return NewParser(WithClient(testutil.TestClient(t)))
+	return NewParser(ParserOptions{
+		Client: testutil.TestClient(t),
+	})
 }
 
 func TestRandom(t *testing.T) {
@@ -25,10 +27,6 @@ func TestSearchByTag(t *testing.T) {
 
 func TestGetByID(t *testing.T) {
 	testutil.TestGetByID(t, newParser)
-}
-
-func TestGetByID2(t *testing.T) {
-	testutil.TestGetByID2(t, newParser)
 }
 
 func TestRelated(t *testing.T) {

@@ -3,7 +3,6 @@ package parser
 import (
 	"errors"
 	"fmt"
-	"io"
 	"net/url"
 	"strings"
 	"time"
@@ -13,12 +12,9 @@ import (
 	"github.com/tdakkota/gnhentai"
 )
 
-func ParseComic(r io.Reader) (gnhentai.Doujinshi, error) {
-	doc, err := goquery.NewDocumentFromReader(r)
-	if err != nil {
-		return gnhentai.Doujinshi{}, err
-	}
-	return parseComic(doc.Selection)
+// ParseComic parses a comic from a HTML document.
+func ParseComic(sel *goquery.Selection) (gnhentai.Doujinshi, error) {
+	return parseComic(sel)
 }
 
 func parseComic(doc *goquery.Selection) (result gnhentai.Doujinshi, err error) {
@@ -30,21 +26,25 @@ func parseComic(doc *goquery.Selection) (result gnhentai.Doujinshi, err error) {
 	if datetime, ok := uploaded.Attr("datetime"); ok {
 		result.UploadDate, err = time.Parse(time.RFC3339Nano, datetime)
 		if err != nil {
-			return result, fmt.Errorf("failed to parse timestamp: %w", err)
+			return result, fmt.Errorf("parse timestamp %q: %w", datetime, err)
 		}
 	}
 
 	allTags := infoBlock.Find("#tags").First().Children()
 	allTags.EachWithBreak(func(i int, selection *goquery.Selection) bool {
-		var tags []gnhentai.Tag
-		var tagType string
+		var (
+			tags    []gnhentai.Tag
+			tagType string
+		)
 
 		if len(selection.Nodes) > 0 {
 			textNode := selection.Nodes[0].FirstChild
 			if textNode != nil {
-				tagType, err = mapTagType(textNode.Data)
-				if err != nil {
-					return false
+				// Gracefully skip unknown tag type.
+				var ok bool
+				tagType, ok = mapTagType(textNode.Data)
+				if !ok {
+					return true
 				}
 			}
 		}
@@ -57,39 +57,39 @@ func parseComic(doc *goquery.Selection) (result gnhentai.Doujinshi, err error) {
 		result.Tags = append(result.Tags, tags...)
 		return true
 	})
-
 	if err != nil {
-		return result, fmt.Errorf("failed to parse tags: %w", err)
+		return result, fmt.Errorf("parse tags: %w", err)
 	}
 
 	if link, ok := absoluteBaseLink(doc.Find("#cover a"), "href"); ok {
 		u, err := url.Parse(link)
 		if err != nil {
-			return result, fmt.Errorf("failed to parse cover link in '%s': %w", link, err)
+			return result, fmt.Errorf("parse cover link in %q: %w", link, err)
 		}
 
 		var n int
 		_, err = fmt.Sscanf(u.Path, "/g/%d/%d/", &result.ID, &n)
 		if err != nil {
-			return result, fmt.Errorf("failed to parse cover link in '%s': %w", link, err)
+			return result, fmt.Errorf("parse cover link in %q: %w", link, err)
 		}
 	}
 
 	if link, ok := absoluteBaseLink(doc.Find("#cover a img"), "data-src"); ok {
 		u, err := url.Parse(link)
 		if err != nil {
-			return result, fmt.Errorf("failed to parse cover link in '%s': %w", link, err)
+			return result, fmt.Errorf("parse cover link in %q: %w", link, err)
 		}
 
 		_, err = fmt.Sscanf(u.Path, "/galleries/%d/cover", &result.MediaID)
 		if err != nil {
-			return result, fmt.Errorf("failed to parse cover link in '%s': %w", link, err)
+			return result, fmt.Errorf("parse cover link in %q: %w", link, err)
 		}
 	}
 
 	return result, nil
 }
 
+// ErrNoID is returned when there is no ID to parse.
 var ErrNoID = errors.New("no ID to parse")
 
 func absoluteBaseLink(a *goquery.Selection, attrName string) (string, bool) {
@@ -105,12 +105,12 @@ func absoluteBaseLink(a *goquery.Selection, attrName string) (string, bool) {
 
 func parseTag(link *goquery.Selection) (result gnhentai.Tag, err error) {
 	countNode := link.Find(".count").First()
-
-	counterText := strings.Join(strings.Split(countNode.Text(), ","), "")
+	counterText := strings.ReplaceAll(countNode.Text(), ",", "")
+	counterText = strings.Trim(counterText, "()")
 
 	_, err = fmt.Sscanf(counterText, "%d", &result.Count)
 	if err != nil {
-		return result, fmt.Errorf("failed to parse counter `%s`: %w", counterText, err)
+		return result, fmt.Errorf("parse counter %q: %w", counterText, err)
 	}
 	countNode.Remove()
 
@@ -122,7 +122,7 @@ func parseTag(link *goquery.Selection) (result gnhentai.Tag, err error) {
 	if class, ok := link.Attr("class"); ok {
 		_, err = fmt.Sscanf(class, "tag tag-%d", &result.ID)
 		if err != nil {
-			return result, fmt.Errorf("failed to parse ID: %w", err)
+			return result, fmt.Errorf("parse ID %q: %w", class, err)
 		}
 	} else {
 		return result, ErrNoID
@@ -131,10 +131,8 @@ func parseTag(link *goquery.Selection) (result gnhentai.Tag, err error) {
 	return result, nil
 }
 
-func parseTags(t string, tags *goquery.Selection) ([]gnhentai.Tag, error) {
-	var err error
-	result := make([]gnhentai.Tag, 0, tags.Children().Length())
-
+func parseTags(t string, tags *goquery.Selection) (result []gnhentai.Tag, err error) {
+	result = make([]gnhentai.Tag, 0, tags.Children().Length())
 	tags.Children().EachWithBreak(func(i int, selection *goquery.Selection) bool {
 		var tag gnhentai.Tag
 
@@ -147,48 +145,38 @@ func parseTags(t string, tags *goquery.Selection) ([]gnhentai.Tag, error) {
 
 		return true
 	})
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
+	return result, err
 }
 
-func mapTagType(name string) (string, error) {
+func mapTagType(name string) (string, bool) {
 	switch strings.ToLower(strings.TrimSpace(name)) {
 	case "parodies:":
-		return "parody", nil
+		return "parody", true
 	case "characters:":
-		return "character", nil
+		return "character", true
 	case "tags:":
-		return "tag", nil
+		return "tag", true
 	case "artists:":
-		return "artist", nil
+		return "artist", true
 	case "groups:":
-		return "group", nil
+		return "group", true
 	case "languages:":
-		return "language", nil
+		return "language", true
 	case "categories:":
-		return "category", nil
+		return "category", true
 	default:
-		return "", fmt.Errorf("unknown tag type: %s", name)
+		return "", false
 	}
 }
 
-func ParseSearch(r io.Reader) ([]gnhentai.Doujinshi, error) {
-	doc, err := goquery.NewDocumentFromReader(r)
-	if err != nil {
-		return nil, err
-	}
-	return parseSearch(doc.Selection)
+// ParseSearch parses search results from a HTML document.
+func ParseSearch(sel *goquery.Selection) ([]gnhentai.Doujinshi, error) {
+	return parseSearch(sel)
 }
 
-func ParseRelated(r io.Reader) ([]gnhentai.Doujinshi, error) {
-	doc, err := goquery.NewDocumentFromReader(r)
-	if err != nil {
-		return nil, err
-	}
-	return parseSearch(doc.Find("#related-container"))
+// ParseRelated parses related doujinshi from a HTML document.
+func ParseRelated(sel *goquery.Selection) ([]gnhentai.Doujinshi, error) {
+	return parseSearch(sel.Find("#related-container"))
 }
 
 func parseSearch(doc *goquery.Selection) (result []gnhentai.Doujinshi, err error) {
@@ -214,14 +202,14 @@ func parseGallery(gallery *goquery.Selection) (result gnhentai.Doujinshi, err er
 	if link, ok := absoluteBaseLink(gallery.Find("a").First(), "href"); ok {
 		_, err = fmt.Sscanf(link, "https://nhentai.net/g/%d/", &result.ID)
 		if err != nil {
-			return result, fmt.Errorf("failed to parse doujinshi link in '%s': %w", link, err)
+			return result, fmt.Errorf("parse doujinshi link %q: %w", link, err)
 		}
 	}
 
 	if link, ok := absoluteBaseLink(gallery.Find("img").First(), "data-src"); ok {
 		_, err = fmt.Sscanf(link, "https://t.nhentai.net/galleries/%d/thumb", &result.MediaID)
 		if err != nil {
-			return result, fmt.Errorf("failed to parse cover link in '%s': %w", link, err)
+			return result, fmt.Errorf("parse cover link in %q: %w", link, err)
 		}
 	}
 
