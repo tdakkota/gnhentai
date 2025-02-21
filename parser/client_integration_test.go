@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/tdakkota/gnhentai"
-	"github.com/tdakkota/gnhentai/testutil"
+	"github.com/tdakkota/gnhentai/internal/testutil"
 )
 
 func newParser(t *testing.T) gnhentai.Client {

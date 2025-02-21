@@ -51,14 +51,6 @@ func (c *Parser) Random(ctx context.Context) (gnhentai.Doujinshi, error) {
 	return c.requestComic(ctx, c.baseURL.JoinPath("random/"))
 }
 
-func (c *Parser) requestComic(ctx context.Context, u *url.URL) (gnhentai.Doujinshi, error) {
-	doc, err := c.scrapeHTML(ctx, u)
-	if err != nil {
-		return gnhentai.Doujinshi{}, err
-	}
-	return ParseComic(doc.Selection)
-}
-
 // Search books by term.
 func (c *Parser) Search(ctx context.Context, q string, page int) ([]gnhentai.Doujinshi, error) {
 	u := c.baseURL.JoinPath("search/")
@@ -93,6 +85,14 @@ func (c *Parser) Related(ctx context.Context, id int) ([]gnhentai.Doujinshi, err
 		return nil, err
 	}
 	return ParseRelated(doc.Selection)
+}
+
+func (c *Parser) requestComic(ctx context.Context, u *url.URL) (gnhentai.Doujinshi, error) {
+	doc, err := c.scrapeHTML(ctx, u)
+	if err != nil {
+		return gnhentai.Doujinshi{}, err
+	}
+	return ParseComic(doc.Selection)
 }
 
 func (c *Parser) requestSearch(ctx context.Context, u *url.URL) ([]gnhentai.Doujinshi, error) {

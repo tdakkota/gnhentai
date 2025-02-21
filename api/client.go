@@ -1,171 +1,153 @@
 package api
 
 import (
-	"encoding/json"
-	"fmt"
-	"io"
+	"context"
 	"net/http"
+	"net/url"
+	"path"
+	"strconv"
 
+	"github.com/go-faster/errors"
 	"github.com/tdakkota/gnhentai"
+	"github.com/tdakkota/gnhentai/internal/nhentaiapi"
 )
 
+// BaseNHentaiAPILink defines base link for nhentai.net API.
 const BaseNHentaiAPILink = gnhentai.BaseNHentaiLink + "/api"
 
+// Client is a nhentai.net API client.
 type Client struct {
-	client *http.Client
+	client    *http.Client
+	apiclient *nhentaiapi.Client
 }
 
-func NewClient(opts ...Option) *Client {
-	c := &Client{}
+var _ gnhentai.Client = (*Client)(nil)
 
-	for _, opt := range opts {
-		opt(c)
+// ClientOptions defines options for nhentai.net API client.
+type ClientOptions struct {
+	// Client sets HTTP client to use.
+	Client *http.Client
+}
+
+func (o ClientOptions) setDefaults() {
+	if o.Client != nil {
+		o.Client = http.DefaultClient
 	}
-
-	if c.client == nil {
-		c.client = http.DefaultClient
-	}
-
-	return c
 }
 
-type Result struct {
-	gnhentai.Doujinshi
-	Error string `json:"error"`
-}
+var baseURL = errors.Must(url.Parse(BaseNHentaiAPILink))
 
-func (c Client) ByID(id int) (gnhentai.Doujinshi, error) {
-	return c.requestComic(fmt.Sprintf("%s/gallery/%d", BaseNHentaiAPILink, id))
-}
+// NewClient creates a new nhentai.net API client.
+func NewClient(opts ClientOptions) *Client {
+	opts.setDefaults()
 
-func (c Client) randomPage() (id int, err error) {
-	r, err := c.client.Get(gnhentai.BaseNHentaiLink + "/random/")
+	apiclient, err := nhentaiapi.NewClient(baseURL.String(), nhentaiapi.WithClient(opts.Client))
 	if err != nil {
-		return
-	}
-	if r.Body != nil {
-		defer r.Body.Close()
+		panic(err)
 	}
 
-	u := r.Request.URL.String()
-	_, err = fmt.Sscanf(u, "https://nhentai.net/g/%d/", &id)
+	return &Client{
+		client:    opts.Client,
+		apiclient: apiclient,
+	}
+}
+
+// ByID returns book metadata by ID.
+func (c *Client) ByID(ctx context.Context, id int) (d gnhentai.Doujinshi, _ error) {
+	r, err := c.apiclient.GetBook(ctx, nhentaiapi.GetBookParams{BookID: strconv.Itoa(id)})
 	if err != nil {
-		return 0, fmt.Errorf("failed to parse ID in %s: %w", u, err)
+		return d, c.mapError(err)
 	}
-
-	return
-}
-
-func (c Client) Random() (gnhentai.Doujinshi, error) {
-	id, err := c.randomPage()
+	d, err = mapBook(*r)
 	if err != nil {
-		return gnhentai.Doujinshi{}, fmt.Errorf("failed to get random doujinshi: %w", err)
+		return d, errors.Wrap(err, "map book")
 	}
-	return c.ByID(id)
+	return d, nil
 }
 
-func (c Client) requestComic(url string) (d gnhentai.Doujinshi, err error) {
-	var result Result
-
-	body, err := c.request(url)
+// Random returns random book metadata.
+func (c *Client) Random(ctx context.Context) (d gnhentai.Doujinshi, _ error) {
+	id, err := c.randomPage(ctx)
 	if err != nil {
-		return
+		return d, errors.Wrap(err, "get random page")
 	}
-	defer body.Close()
 
-	err = json.NewDecoder(body).Decode(&result)
+	return c.ByID(ctx, id)
+}
+
+func (c *Client) randomPage(ctx context.Context) (int, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, gnhentai.BaseNHentaiLink+"/random/", nil)
 	if err != nil {
-		return
+		return 0, errors.Wrap(err, "create request")
 	}
 
-	if result.Error != "" {
-		err = Error{result.Error}
-		return
-	}
-
-	return result.Doujinshi, nil
-}
-
-type MultipleResult struct {
-	Result   []gnhentai.Doujinshi `json:"result"`
-	NumPages int                  `json:"num_pages"`
-	PerPage  int                  `json:"per_page"`
-	Error    string               `json:"error"`
-}
-
-func (c Client) Search(q string, page int) ([]gnhentai.Doujinshi, error) {
-	var u string // url
-
-	if page >= 2 {
-		u = fmt.Sprintf("%s/galleries/search?query=%s&page=%d", BaseNHentaiAPILink, q, page)
-	} else {
-		u = fmt.Sprintf("%s/galleries/search?query=%s", BaseNHentaiAPILink, q)
-	}
-
-	return c.requestSearch(u)
-}
-
-func (c Client) SearchByTag(tag gnhentai.Tag, page int) ([]gnhentai.Doujinshi, error) {
-	var u string // url
-
-	if page >= 2 {
-		u = fmt.Sprintf("%s/galleries/tagged?tag_id=%d&page=%d", BaseNHentaiAPILink, tag.ID, page)
-	} else {
-		u = fmt.Sprintf("%s/galleries/tagged?tag_id=%d", BaseNHentaiAPILink, tag.ID)
-	}
-
-	return c.requestSearch(u)
-}
-
-func (c Client) Related(id int) ([]gnhentai.Doujinshi, error) {
-	return c.requestSearch(fmt.Sprintf("%s/gallery/%d/related", BaseNHentaiAPILink, id))
-}
-
-func (c Client) requestSearch(url string) ([]gnhentai.Doujinshi, error) {
-	var result MultipleResult
-
-	body, err := c.request(url)
+	r, err := c.client.Do(req)
 	if err != nil {
-		return nil, err
+		return 0, errors.Wrap(err, "do requests")
 	}
-	defer body.Close()
+	defer func() {
+		_ = r.Body.Close()
+	}()
 
-	err = json.NewDecoder(body).Decode(&result)
+	redirect := r.Request.URL
+	id, err := strconv.Atoi(path.Base(redirect.Path))
 	if err != nil {
-		return nil, err
+		return 0, errors.Errorf("invalid random page redirect: %q", redirect)
 	}
-
-	if result.Error != "" {
-		return nil, Error{result.Error}
-	}
-
-	return result.Result, nil
+	return id, nil
 }
 
-func (c Client) Page(mediaID, n int, format string) (io.ReadCloser, error) {
-	return c.request(gnhentai.PageLink(mediaID, n, format))
-}
-
-func (c Client) Thumbnail(mediaID int, n int, format string) (io.ReadCloser, error) {
-	return c.request(gnhentai.ThumbnailLink(mediaID, n, format))
-}
-
-func (c Client) Cover(mediaID int, format string) (io.ReadCloser, error) {
-	return c.request(gnhentai.CoverLink(mediaID, format))
-}
-
-func (c Client) request(url string) (io.ReadCloser, error) {
-	r, err := c.client.Get(url)
+// Search books by term.
+func (c *Client) Related(ctx context.Context, id int) ([]gnhentai.Doujinshi, error) {
+	r, err := c.apiclient.Related(ctx, nhentaiapi.RelatedParams{BookID: strconv.Itoa(id)})
 	if err != nil {
-		return nil, err
+		return nil, c.mapError(err)
 	}
+	d, err := mapSlice(r.Result, mapBook)
+	if err != nil {
+		return nil, errors.Wrap(err, "map books")
+	}
+	return d, nil
+}
 
-	if r.StatusCode != 200 {
-		if r.Body != nil {
-			_ = r.Body.Close()
+// SearchByTag searches books by given [gnhentai.Tag].
+func (c *Client) Search(ctx context.Context, q string, page int) ([]gnhentai.Doujinshi, error) {
+	r, err := c.apiclient.Search(ctx, nhentaiapi.SearchParams{
+		Query: q,
+		Page:  nhentaiapi.NewOptInt(page),
+	})
+	if err != nil {
+		return nil, c.mapError(err)
+	}
+	d, err := mapSlice(r.Result, mapBook)
+	if err != nil {
+		return nil, errors.Wrap(err, "map books")
+	}
+	return d, nil
+}
+
+// Related returns related books.
+func (c *Client) SearchByTag(ctx context.Context, tag gnhentai.Tag, page int) ([]gnhentai.Doujinshi, error) {
+	r, err := c.apiclient.SearchByTagID(ctx, nhentaiapi.SearchByTagIDParams{
+		TagID: tag.ID,
+		Page:  nhentaiapi.NewOptInt(page),
+	})
+	if err != nil {
+		return nil, c.mapError(err)
+	}
+	d, err := mapSlice(r.Result, mapBook)
+	if err != nil {
+		return nil, errors.Wrap(err, "map books")
+	}
+	return d, nil
+}
+
+func (c *Client) mapError(err error) error {
+	if apiErr, ok := errors.Into[*nhentaiapi.ErrorStatusCode](err); ok {
+		return &APIError{
+			StatusCode: apiErr.StatusCode,
+			Message:    apiErr.Response.Error,
 		}
-		return nil, fmt.Errorf("bad http code: %d", r.StatusCode)
 	}
-
-	return r.Body, err
+	return err
 }

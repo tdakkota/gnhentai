@@ -1,0 +1,10 @@
+# sets generator options.
+generator:
+  convenient_errors: on
+  # sets generator features.
+  features:
+    enable:
+      # Enables paths client generation
+      - "paths/client"
+      - "paths/server"
+    disable_all: true

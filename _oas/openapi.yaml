@@ -1,4 +1,4 @@
-openapi: 3.0.1
+openapi: 3.0.3
 
 info:
   title: Nhentai.net API
@@ -26,16 +26,13 @@ paths:
       parameters:
         - name: query
           in: query
-          description: "Search query.
-        
-        * You can search for multiple terms at the same time, and this will return only galleries that contain both terms. For example, anal tanlines finds all galleries that contain both anal and tanlines.
-        
-        * You can exclude terms by prefixing them with -. For example, anal tanlines -yaoi matches all galleries matching anal and tanlines but not yaoi.
-        
-        * Exact searches can be performed by wrapping terms in double quotes. For example, \"big breasts\" only matches galleries with \"big breasts\" somewhere in the title or in tags.
-        
-        * These can be combined with tag namespaces for finer control over the query: parodies:railgun -tag:\"big breasts\".
-        "
+          description: |
+            Search query.
+              * You can search for multiple terms at the same time, and this will return only galleries that contain both terms.
+                For example, `anal tanlines` finds all galleries that contain both `anal` and `tanlines`.
+              * You can exclude terms by prefixing them with `-`. For example, `anal tanlines -yaoi` matches all galleries matching `anal` and `tanlines` but not `yaoi`.
+              * Exact searches can be performed by wrapping terms in double quotes. For example, `"big breasts"` only matches galleries with `"big breasts"` exactly somewhere in the title or in tags.
+              * These can be combined with tag namespaces for finer control over the query: `parodies:railgun -tag:"big breasts"`.
           required: true
           schema:
             type: string
@@ -50,12 +47,9 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/SearchResponse'
-        403:
-          description: You need to provide a search query.
-          content: {}
+                $ref: "#/components/schemas/SearchResponse"
+        default:
+          $ref: "#/components/responses/Error"
 
   /api/galleries/tagged:
     get:
@@ -81,12 +75,9 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/SearchResponse'
-        403:
-          description: Just an error.
-          content: {}
+                $ref: "#/components/schemas/SearchResponse"
+        default:
+          $ref: "#/components/responses/Error"
 
   /api/gallery/{book_id}:
     get:
@@ -100,18 +91,39 @@ paths:
           description: ID of book.
           required: true
           schema:
-            minimum: 1
-            type: integer
+            type: string
       responses:
         200:
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Book'
-        403:
-          description: Invalid status value
-          content: {}
+                $ref: "#/components/schemas/Book"
+        default:
+          $ref: "#/components/responses/Error"
+
+  /api/galleries/{book_id}/related:
+    get:
+      tags:
+        - book
+      summary: Search for related comics
+      operationId: related
+      parameters:
+        - name: book_id
+          in: path
+          description: ID of book.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchResponse"
+        default:
+          $ref: "#/components/responses/Error"
 
   /galleries/{media_id}/{page}.{format}:
     get:
@@ -128,8 +140,7 @@ paths:
           description: ID of book.
           required: true
           schema:
-            minimum: 1
-            type: integer
+            type: string
         - name: page
           in: path
           description: Number of page.
@@ -151,9 +162,8 @@ paths:
             image/*:
               schema:
                 format: binary
-        403:
-          description: Invalid status value
-          content: {}
+        default:
+          $ref: "#/components/responses/Error"
 
   /galleries/{media_id}/{page}t.{format}:
     get:
@@ -170,8 +180,7 @@ paths:
           description: ID of book.
           required: true
           schema:
-            minimum: 1
-            type: integer
+            type: string
         - name: page
           in: path
           description: Number of page.
@@ -193,9 +202,8 @@ paths:
             image/*:
               schema:
                 format: binary
-        403:
-          description: Invalid status value
-          content: {}
+        default:
+          $ref: "#/components/responses/Error"
 
   /galleries/{media_id}/cover.{format}:
     get:
@@ -212,8 +220,7 @@ paths:
           description: ID of book.
           required: true
           schema:
-            minimum: 1
-            type: integer
+            type: string
         - name: format
           in: path
           description: Image format.
@@ -228,14 +235,25 @@ paths:
             image/*:
               schema:
                 format: binary
-        403:
-          description: Invalid status value
-          content: {}
+        default:
+          $ref: "#/components/responses/Error"
 
 components:
+  responses:
+    Error:
+      description: Error
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [error]
+            properties:
+              error:
+                type: string
   schemas:
     Tag:
       type: object
+      required: [id, type, name]
       properties:
         id:
           minimum: 1
@@ -269,6 +287,7 @@ components:
 
     Image:
       type: object
+      required: [t]
       properties:
         t:
           type: string
@@ -287,33 +306,33 @@ components:
         pages:
           type: array
           items:
-            $ref: '#/components/schemas/Image'
+            $ref: "#/components/schemas/Image"
         cover:
-          $ref: '#/components/schemas/Image'
+          $ref: "#/components/schemas/Image"
         thumbnail:
-          $ref: '#/components/schemas/Image'
+          $ref: "#/components/schemas/Image"
 
     Book:
       type: object
+      required: [id, images, title, tags]
       properties:
         id:
-          minimum: 1
-          type: integer
+          $ref: "#/components/schemas/BookID"
         media_id:
-          minimum: 1
-          type: integer
+          type: string
         images:
-          $ref: '#/components/schemas/Images'
+          $ref: "#/components/schemas/Images"
         title:
-          $ref: '#/components/schemas/Title'
+          $ref: "#/components/schemas/Title"
         tags:
           type: array
           items:
-            $ref: '#/components/schemas/Tag'
+            $ref: "#/components/schemas/Tag"
         scanlator:
           type: string
         upload_date:
           type: integer
+          format: unix
         num_pages:
           minimum: 0
           type: integer
@@ -321,13 +340,19 @@ components:
           minimum: 0
           type: integer
 
+    BookID:
+      oneOf:
+        - type: integer
+        - type: string
+
     SearchResponse:
       type: object
+      required: [result]
       properties:
         result:
           type: array
           items:
-            $ref: '#/components/schemas/Book'
+            $ref: "#/components/schemas/Book"
         num_pages:
           type: integer
           description: total number of pages
