@@ -9,6 +9,7 @@ import (
 
 const BaseNHentaiLink = "https://nhentai.net"
 
+// Tag is a structure that represents a book tag.
 type Tag struct {
 	ID    int    `json:"id"`
 	Type  string `json:"type"`
@@ -17,22 +18,27 @@ type Tag struct {
 	Count int    `json:"count"`
 }
 
+// Image is a structure that represents an image.
 type Image struct {
 	T      string `json:"t"`
 	Width  int    `json:"w"`
 	Height int    `json:"h"`
 }
 
-type Page = Image
-type Cover = Image
-type Thumbnail = Image
+type (
+	Page      = Image
+	Cover     = Image
+	Thumbnail = Image
+)
 
+// Images is a structure that represents a book images.
 type Images struct {
 	Pages     []Page    `json:"pages"`
 	Cover     Cover     `json:"cover"`
 	Thumbnail Thumbnail `json:"thumbnail"`
 }
 
+// Title is a structure that represents a book title.
 type Title struct {
 	// English name of book
 	English string `json:"english"`
@@ -42,12 +48,12 @@ type Title struct {
 	Pretty string `json:"pretty"`
 }
 
-// JSONTimestamp
+// JSONTimestamp is a time.Time wrapper for json.Unmarshal
 type JSONTimestamp struct {
 	time.Time
 }
 
-// UnmarshalJSON parses json number into time.Time
+// UnmarshalJSON implements [json.Unmarshaler].
 func (t *JSONTimestamp) UnmarshalJSON(b []byte) error {
 	parsed, err := strconv.ParseInt(string(b), 10, 64)
 	if err != nil {
@@ -58,6 +64,7 @@ func (t *JSONTimestamp) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+// Doujinshi is a structure that represents a book.
 type Doujinshi struct {
 	// ID is unique identification number of Doujinshi.
 	// Note: parser does not parse ID of Doujinshi.
@@ -76,6 +83,7 @@ type Doujinshi struct {
 	Images Images `json:"images"`
 }
 
+// Name returns pretty name of Doujinshi.
 func (d Doujinshi) Name() string {
 	switch {
 	case d.Title.Pretty != "":
@@ -87,6 +95,7 @@ func (d Doujinshi) Name() string {
 	}
 }
 
+// UnmarshalJSON implements [json.Unmarshaler].
 func (d *Doujinshi) UnmarshalJSON(data []byte) error {
 	type Alias Doujinshi
 	correctStruct := struct {
