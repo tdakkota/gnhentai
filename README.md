@@ -12,46 +12,21 @@
 
 ## Getting Started
 
-This library is packaged using [Go modules][go-modules]. You can get it via:
+This library is packaged using [Go modules](https://go.dev/ref/mod). You can get it via:
 
 ```
 go get github.com/tdakkota/gnhentai
 ```
 
-## Use as lib
-
 There are two implementations of `gnhentai.Client`:
 
-- `api.Client` which uses NHentai API
-- `parser.Parser` which parses NHentai web pages using `goquery`
+- `gnhentai.API` which uses [ogen](https://github.com/ogen-go/ogen)-generated nhentai.net API
+- `parser.Parser` which scrapes nhentai.net web pages
 
-I recommend you to use API version, it is more stable.
+I recommend you to use API version, it is more stable and returns more data.
 
 [Example](https://github.com/tdakkota/gnhentai/tree/master/examples/download-random-cover/main.go)
 
-## gnhentai-cli
-
-Install and run (`GOBIN` should be in `PATH`), it will download random book into current dir
-
-```
-gnhentai-cli download
-```
-
-or
-
-```
-gnhentai-cli download --id=<your_manga_id>
-```
-
-## Use API server
-
-```
-gnhentai-server run --bind=<bind_addr, default is :8080>
-```
-
 ## Related
 
-- [Swagger file](https://gist.github.com/tdakkota/6efa100de2000549027617b1a1088d78)
 - [Unofficial API Docs](https://edgyboi2414.github.io/nhentai-api)
-
-[go-modules]: https://github.com/golang/go/wiki/Modules
