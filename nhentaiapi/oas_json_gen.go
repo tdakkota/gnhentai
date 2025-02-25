@@ -312,7 +312,7 @@ func (s *Error) Encode(e *jx.Encoder) {
 func (s *Error) encodeFields(e *jx.Encoder) {
 	{
 		e.FieldStart("error")
-		e.Str(s.Error)
+		s.Error.Encode(e)
 	}
 }
 
@@ -332,9 +332,7 @@ func (s *Error) Decode(d *jx.Decoder) error {
 		case "error":
 			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
-				v, err := d.Str()
-				s.Error = string(v)
-				if err != nil {
+				if err := s.Error.Decode(d); err != nil {
 					return err
 				}
 				return nil
@@ -393,6 +391,56 @@ func (s *Error) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *Error) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes ErrorDetails as json.
+func (s ErrorDetails) Encode(e *jx.Encoder) {
+	switch s.Type {
+	case StringErrorDetails:
+		e.Str(s.String)
+	case BoolErrorDetails:
+		e.Bool(s.Bool)
+	}
+}
+
+// Decode decodes ErrorDetails from json.
+func (s *ErrorDetails) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode ErrorDetails to nil")
+	}
+	// Sum type type_discriminator.
+	switch t := d.Next(); t {
+	case jx.Bool:
+		v, err := d.Bool()
+		s.Bool = bool(v)
+		if err != nil {
+			return err
+		}
+		s.Type = BoolErrorDetails
+	case jx.String:
+		v, err := d.Str()
+		s.String = string(v)
+		if err != nil {
+			return err
+		}
+		s.Type = StringErrorDetails
+	default:
+		return errors.Errorf("unexpected json type %q", t)
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s ErrorDetails) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *ErrorDetails) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }

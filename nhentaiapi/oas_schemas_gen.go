@@ -183,17 +183,82 @@ func NewStringBookID(v string) BookID {
 }
 
 type Error struct {
-	Error string `json:"error"`
+	Error ErrorDetails `json:"error"`
 }
 
 // GetError returns the value of Error.
-func (s *Error) GetError() string {
+func (s *Error) GetError() ErrorDetails {
 	return s.Error
 }
 
 // SetError sets the value of Error.
-func (s *Error) SetError(val string) {
+func (s *Error) SetError(val ErrorDetails) {
 	s.Error = val
+}
+
+// Ref: #/components/schemas/ErrorDetails
+// ErrorDetails represents sum type.
+type ErrorDetails struct {
+	Type   ErrorDetailsType // switch on this field
+	String string
+	Bool   bool
+}
+
+// ErrorDetailsType is oneOf type of ErrorDetails.
+type ErrorDetailsType string
+
+// Possible values for ErrorDetailsType.
+const (
+	StringErrorDetails ErrorDetailsType = "string"
+	BoolErrorDetails   ErrorDetailsType = "bool"
+)
+
+// IsString reports whether ErrorDetails is string.
+func (s ErrorDetails) IsString() bool { return s.Type == StringErrorDetails }
+
+// IsBool reports whether ErrorDetails is bool.
+func (s ErrorDetails) IsBool() bool { return s.Type == BoolErrorDetails }
+
+// SetString sets ErrorDetails to string.
+func (s *ErrorDetails) SetString(v string) {
+	s.Type = StringErrorDetails
+	s.String = v
+}
+
+// GetString returns string and true boolean if ErrorDetails is string.
+func (s ErrorDetails) GetString() (v string, ok bool) {
+	if !s.IsString() {
+		return v, false
+	}
+	return s.String, true
+}
+
+// NewStringErrorDetails returns new ErrorDetails from string.
+func NewStringErrorDetails(v string) ErrorDetails {
+	var s ErrorDetails
+	s.SetString(v)
+	return s
+}
+
+// SetBool sets ErrorDetails to bool.
+func (s *ErrorDetails) SetBool(v bool) {
+	s.Type = BoolErrorDetails
+	s.Bool = v
+}
+
+// GetBool returns bool and true boolean if ErrorDetails is bool.
+func (s ErrorDetails) GetBool() (v bool, ok bool) {
+	if !s.IsBool() {
+		return v, false
+	}
+	return s.Bool, true
+}
+
+// NewBoolErrorDetails returns new ErrorDetails from bool.
+func NewBoolErrorDetails(v bool) ErrorDetails {
+	var s ErrorDetails
+	s.SetBool(v)
+	return s
 }
 
 // ErrorStatusCode wraps Error with StatusCode.
