@@ -17,7 +17,7 @@ func (s *ErrorStatusCode) Error() string {
 // Ref: #/components/schemas/Book
 type Book struct {
 	ID           BookID         `json:"id"`
-	MediaID      OptString      `json:"media_id"`
+	MediaID      string         `json:"media_id"`
 	Images       Images         `json:"images"`
 	Title        Title          `json:"title"`
 	Tags         []Tag          `json:"tags"`
@@ -33,7 +33,7 @@ func (s *Book) GetID() BookID {
 }
 
 // GetMediaID returns the value of MediaID.
-func (s *Book) GetMediaID() OptString {
+func (s *Book) GetMediaID() string {
 	return s.MediaID
 }
 
@@ -78,7 +78,7 @@ func (s *Book) SetID(val BookID) {
 }
 
 // SetMediaID sets the value of MediaID.
-func (s *Book) SetMediaID(val OptString) {
+func (s *Book) SetMediaID(val string) {
 	s.MediaID = val
 }
 
@@ -510,6 +510,69 @@ func (o OptInt) Or(d int) int {
 	return d
 }
 
+// NewOptNilString returns new OptNilString with value set to v.
+func NewOptNilString(v string) OptNilString {
+	return OptNilString{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptNilString is optional nullable string.
+type OptNilString struct {
+	Value string
+	Set   bool
+	Null  bool
+}
+
+// IsSet returns true if OptNilString was set.
+func (o OptNilString) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptNilString) Reset() {
+	var v string
+	o.Value = v
+	o.Set = false
+	o.Null = false
+}
+
+// SetTo sets value to v.
+func (o *OptNilString) SetTo(v string) {
+	o.Set = true
+	o.Null = false
+	o.Value = v
+}
+
+// IsSet returns true if value is Null.
+func (o OptNilString) IsNull() bool { return o.Null }
+
+// SetNull sets value to null.
+func (o *OptNilString) SetToNull() {
+	o.Set = true
+	o.Null = true
+	var v string
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptNilString) Get() (v string, ok bool) {
+	if o.Null {
+		return v, false
+	}
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptNilString) Or(d string) string {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptString returns new OptString with value set to v.
 func NewOptString(v string) OptString {
 	return OptString{
@@ -778,37 +841,37 @@ func (s *TagType) UnmarshalText(data []byte) error {
 
 // Ref: #/components/schemas/Title
 type Title struct {
-	English  OptString `json:"english"`
-	Japanese OptString `json:"japanese"`
-	Pretty   OptString `json:"pretty"`
+	English  OptNilString `json:"english"`
+	Japanese OptNilString `json:"japanese"`
+	Pretty   OptNilString `json:"pretty"`
 }
 
 // GetEnglish returns the value of English.
-func (s *Title) GetEnglish() OptString {
+func (s *Title) GetEnglish() OptNilString {
 	return s.English
 }
 
 // GetJapanese returns the value of Japanese.
-func (s *Title) GetJapanese() OptString {
+func (s *Title) GetJapanese() OptNilString {
 	return s.Japanese
 }
 
 // GetPretty returns the value of Pretty.
-func (s *Title) GetPretty() OptString {
+func (s *Title) GetPretty() OptNilString {
 	return s.Pretty
 }
 
 // SetEnglish sets the value of English.
-func (s *Title) SetEnglish(val OptString) {
+func (s *Title) SetEnglish(val OptNilString) {
 	s.English = val
 }
 
 // SetJapanese sets the value of Japanese.
-func (s *Title) SetJapanese(val OptString) {
+func (s *Title) SetJapanese(val OptNilString) {
 	s.Japanese = val
 }
 
 // SetPretty sets the value of Pretty.
-func (s *Title) SetPretty(val OptString) {
+func (s *Title) SetPretty(val OptNilString) {
 	s.Pretty = val
 }

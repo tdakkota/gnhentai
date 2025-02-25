@@ -2,19 +2,22 @@ package testutil
 
 import (
 	"net/http"
-	"testing"
 )
+
+type testingT interface {
+	Logf(format string, args ...any)
+}
 
 // LogTransport logs all requests to testing logger.
 type LogTransport struct {
-	t    *testing.T
+	t    testingT
 	prev http.RoundTripper
 }
 
 var _ http.RoundTripper = (*LogTransport)(nil)
 
 // NewLogTransport creates a new [LogTransport].
-func NewLogTransport(t *testing.T, prev http.RoundTripper) *LogTransport {
+func NewLogTransport(t testingT, prev http.RoundTripper) *LogTransport {
 	if prev == nil {
 		prev = http.DefaultTransport
 	}
@@ -23,12 +26,12 @@ func NewLogTransport(t *testing.T, prev http.RoundTripper) *LogTransport {
 
 // RoundTrip implements [http.RoundTripper].
 func (l *LogTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-	l.t.Log(req.URL.String())
+	l.t.Logf("Request %q", req.URL.String())
 	return l.prev.RoundTrip(req)
 }
 
 // TestClient creates a new http client with logging transport.
-func TestClient(t *testing.T) *http.Client {
+func TestClient(t testingT) *http.Client {
 	return &http.Client{
 		Transport: NewLogTransport(t, http.DefaultTransport),
 	}

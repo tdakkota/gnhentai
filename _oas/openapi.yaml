@@ -132,7 +132,7 @@ paths:
       summary: Gets page
       operationId: getPageImage
       servers:
-        - url: https://i.nhentai.net
+        - url: https://t1.nhentai.net
           description: Use CDN host instead of API
       parameters:
         - name: media_id
@@ -172,7 +172,7 @@ paths:
       summary: Gets page thumbnail
       operationId: getPageThumbnailImage
       servers:
-        - url: https://t.nhentai.net
+        - url: https://t1.nhentai.net
           description: Use CDN host instead of API
       parameters:
         - name: media_id
@@ -212,7 +212,7 @@ paths:
       summary: Gets page cover
       operationId: getPageCoverImage
       servers:
-        - url: https://t.nhentai.net
+        - url: https://t1.nhentai.net
           description: Use CDN host instead of API
       parameters:
         - name: media_id
@@ -280,10 +280,13 @@ components:
       properties:
         english:
           type: string
+          nullable: true
         japanese:
           type: string
+          nullable: true
         pretty:
           type: string
+          nullable: true
 
     Image:
       type: object
@@ -314,7 +317,7 @@ components:
 
     Book:
       type: object
-      required: [id, images, title, tags]
+      required: [id, media_id, images, title, tags]
       properties:
         id:
           $ref: "#/components/schemas/BookID"

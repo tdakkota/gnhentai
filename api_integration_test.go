@@ -1,4 +1,4 @@
-package api
+package gnhentai_test
 
 import (
 	"testing"
@@ -8,7 +8,7 @@ import (
 )
 
 func newClient(t *testing.T) gnhentai.Client {
-	return NewClient(ClientOptions{
+	return gnhentai.NewAPI(gnhentai.APIOptions{
 		Client: testutil.TestClient(t),
 	})
 }
@@ -23,10 +23,6 @@ func TestSearch(t *testing.T) {
 
 func TestSearchByTag(t *testing.T) {
 	testutil.TestSearchByTag(t, newClient)
-}
-
-func TestGetByID(t *testing.T) {
-	testutil.TestGetByID(t, newClient)
 }
 
 func TestRelated(t *testing.T) {

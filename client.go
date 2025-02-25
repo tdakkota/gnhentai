@@ -1,14 +1,23 @@
 package gnhentai
 
-import "context"
+import (
+	"context"
+
+	"github.com/tdakkota/gnhentai/nhentaiapi"
+)
+
+type (
+	// BookID defines book ID.
+	BookID = string
+)
 
 // Client is an abstraction for different nhentai.net API implementations
 type Client interface {
 	// ByID returns book metadata by ID.
-	ByID(ctx context.Context, id int) (Doujinshi, error)
+	ByID(ctx context.Context, id BookID) (*nhentaiapi.Book, error)
 
 	// Random returns random book metadata.
-	Random(ctx context.Context) (Doujinshi, error)
+	Random(ctx context.Context) (*nhentaiapi.Book, error)
 
 	// Search books by term
 	//
@@ -30,12 +39,12 @@ type Client interface {
 	//    For example, "big breasts" only matches galleries with "big breasts" exactly somewhere in the title or in tags.
 	//
 	//  - These can be combined with tag namespaces for finer control over the query: parodies:railgun -tag:\"big breasts\".
-	Search(ctx context.Context, q string, page int) ([]Doujinshi, error)
+	Search(ctx context.Context, q string, page int) (*nhentaiapi.SearchResponse, error)
 
 	// SearchByTag searches books by given [Tag].
 	// Note: API client uses [Tag.ID], when Parser uses [Tag.Name] to get metadata, so both fields should not be empty.
-	SearchByTag(ctx context.Context, tag Tag, page int) ([]Doujinshi, error)
+	SearchByTag(ctx context.Context, tag nhentaiapi.Tag, page int) (*nhentaiapi.SearchResponse, error)
 
 	// Related returns related books.
-	Related(ctx context.Context, id int) ([]Doujinshi, error)
+	Related(ctx context.Context, id BookID) (*nhentaiapi.SearchResponse, error)
 }

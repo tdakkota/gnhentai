@@ -1,4 +1,4 @@
-package api
+package nhentaiapi
 
 import (
 	_ "embed"
@@ -6,21 +6,20 @@ import (
 
 	"github.com/go-faster/jx"
 	"github.com/stretchr/testify/require"
-	"github.com/tdakkota/gnhentai/internal/nhentaiapi"
 )
 
 //go:embed _testdata/search.json
 var search []byte
 
 func TestSearchResponse(t *testing.T) {
-	checkSchema[nhentaiapi.SearchResponse](t, search)
+	checkSchema[SearchResponse](t, search)
 }
 
 //go:embed _testdata/book.json
 var book []byte
 
 func TestBook(t *testing.T) {
-	checkSchema[nhentaiapi.Book](t, book)
+	checkSchema[Book](t, book)
 }
 
 func checkSchema[
