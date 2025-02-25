@@ -527,6 +527,20 @@ func (c *Client) sendSearch(ctx context.Context, params SearchParams) (res *Sear
 			return res, errors.Wrap(err, "encode query")
 		}
 	}
+	{
+		// Encode "per_page" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "per_page",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			return e.EncodeValue(conv.IntToString(params.PerPage))
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
 	u.RawQuery = q.Values().Encode()
 
 	r, err := ht.NewRequest(ctx, "GET", u)
@@ -593,6 +607,20 @@ func (c *Client) sendSearchByTagID(ctx context.Context, params SearchByTagIDPara
 				return e.EncodeValue(conv.IntToString(val))
 			}
 			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "per_page" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "per_page",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			return e.EncodeValue(conv.IntToString(params.PerPage))
 		}); err != nil {
 			return res, errors.Wrap(err, "encode query")
 		}

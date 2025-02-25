@@ -324,7 +324,7 @@ func decodeGetPageImageParams(args [3]string, argsEscaped bool, r *http.Request)
 			if err := func() error {
 				if err := (validate.Int{
 					MinSet:        true,
-					Min:           0,
+					Min:           1,
 					MaxSet:        false,
 					Max:           0,
 					MinExclusive:  false,
@@ -520,7 +520,7 @@ func decodeGetPageThumbnailImageParams(args [3]string, argsEscaped bool, r *http
 			if err := func() error {
 				if err := (validate.Int{
 					MinSet:        true,
-					Min:           0,
+					Min:           1,
 					MaxSet:        false,
 					Max:           0,
 					MinExclusive:  false,
@@ -679,6 +679,8 @@ type SearchParams struct {
 	Query string
 	// Number of result page.
 	Page OptInt
+	// Number of pages to return.
+	PerPage int
 }
 
 func unpackSearchParams(packed middleware.Parameters) (params SearchParams) {
@@ -697,6 +699,13 @@ func unpackSearchParams(packed middleware.Parameters) (params SearchParams) {
 		if v, ok := packed[key]; ok {
 			params.Page = v.(OptInt)
 		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "per_page",
+			In:   "query",
+		}
+		params.PerPage = packed[key].(int)
 	}
 	return params
 }
@@ -771,11 +780,88 @@ func decodeSearchParams(args [0]string, argsEscaped bool, r *http.Request) (para
 			}); err != nil {
 				return err
 			}
+			if err := func() error {
+				if value, ok := params.Page.Get(); ok {
+					if err := func() error {
+						if err := (validate.Int{
+							MinSet:        true,
+							Min:           1,
+							MaxSet:        false,
+							Max:           0,
+							MinExclusive:  false,
+							MaxExclusive:  false,
+							MultipleOfSet: false,
+							MultipleOf:    0,
+						}).Validate(int64(value)); err != nil {
+							return errors.Wrap(err, "int")
+						}
+						return nil
+					}(); err != nil {
+						return err
+					}
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
 		}
 		return nil
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
 			Name: "page",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: per_page.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "per_page",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToInt(val)
+				if err != nil {
+					return err
+				}
+
+				params.PerPage = c
+				return nil
+			}); err != nil {
+				return err
+			}
+			if err := func() error {
+				if err := (validate.Int{
+					MinSet:        true,
+					Min:           1,
+					MaxSet:        false,
+					Max:           0,
+					MinExclusive:  false,
+					MaxExclusive:  false,
+					MultipleOfSet: false,
+					MultipleOf:    0,
+				}).Validate(int64(params.PerPage)); err != nil {
+					return errors.Wrap(err, "int")
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "per_page",
 			In:   "query",
 			Err:  err,
 		}
@@ -789,6 +875,8 @@ type SearchByTagIDParams struct {
 	TagID int
 	// Number of result page.
 	Page OptInt
+	// Number of pages to return.
+	PerPage int
 }
 
 func unpackSearchByTagIDParams(packed middleware.Parameters) (params SearchByTagIDParams) {
@@ -807,6 +895,13 @@ func unpackSearchByTagIDParams(packed middleware.Parameters) (params SearchByTag
 		if v, ok := packed[key]; ok {
 			params.Page = v.(OptInt)
 		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "per_page",
+			In:   "query",
+		}
+		params.PerPage = packed[key].(int)
 	}
 	return params
 }
@@ -881,11 +976,88 @@ func decodeSearchByTagIDParams(args [0]string, argsEscaped bool, r *http.Request
 			}); err != nil {
 				return err
 			}
+			if err := func() error {
+				if value, ok := params.Page.Get(); ok {
+					if err := func() error {
+						if err := (validate.Int{
+							MinSet:        true,
+							Min:           1,
+							MaxSet:        false,
+							Max:           0,
+							MinExclusive:  false,
+							MaxExclusive:  false,
+							MultipleOfSet: false,
+							MultipleOf:    0,
+						}).Validate(int64(value)); err != nil {
+							return errors.Wrap(err, "int")
+						}
+						return nil
+					}(); err != nil {
+						return err
+					}
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
 		}
 		return nil
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
 			Name: "page",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: per_page.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "per_page",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToInt(val)
+				if err != nil {
+					return err
+				}
+
+				params.PerPage = c
+				return nil
+			}); err != nil {
+				return err
+			}
+			if err := func() error {
+				if err := (validate.Int{
+					MinSet:        true,
+					Min:           1,
+					MaxSet:        false,
+					Max:           0,
+					MinExclusive:  false,
+					MaxExclusive:  false,
+					MultipleOfSet: false,
+					MultipleOf:    0,
+				}).Validate(int64(params.PerPage)); err != nil {
+					return errors.Wrap(err, "int")
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "per_page",
 			In:   "query",
 			Err:  err,
 		}

@@ -550,6 +550,10 @@ func (s *Server) handleSearchRequest(args [0]string, argsEscaped bool, w http.Re
 					Name: "page",
 					In:   "query",
 				}: params.Page,
+				{
+					Name: "per_page",
+					In:   "query",
+				}: params.PerPage,
 			},
 			Raw: r,
 		}
@@ -646,6 +650,10 @@ func (s *Server) handleSearchByTagIDRequest(args [0]string, argsEscaped bool, w 
 					Name: "page",
 					In:   "query",
 				}: params.Page,
+				{
+					Name: "per_page",
+					In:   "query",
+				}: params.PerPage,
 			},
 			Raw: r,
 		}
