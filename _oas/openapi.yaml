@@ -40,6 +40,14 @@ paths:
           in: query
           description: Number of result page.
           schema:
+            minimum: 1
+            type: integer
+        - name: per_page
+          in: query
+          description: Number of pages to return.
+          required: true
+          schema:
+            minimum: 1
             type: integer
       responses:
         200:
@@ -68,6 +76,14 @@ paths:
           in: query
           description: Number of result page.
           schema:
+            minimum: 1
+            type: integer
+        - name: per_page
+          in: query
+          description: Number of pages to return.
+          required: true
+          schema:
+            minimum: 1
             type: integer
       responses:
         200:
@@ -146,7 +162,7 @@ paths:
           description: Number of page.
           required: true
           schema:
-            minimum: 0
+            minimum: 1
             type: integer
         - name: format
           in: path
@@ -186,7 +202,7 @@ paths:
           description: Number of page.
           required: true
           schema:
-            minimum: 0
+            minimum: 1
             type: integer
         - name: format
           in: path
