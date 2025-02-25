@@ -1,20 +1,60 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
+	"os/signal"
 
 	"github.com/tdakkota/gnhentai"
-	"github.com/tdakkota/gnhentai/api"
 )
 
-func main() {
-	c := api.NewClient()
-
-	doujinshi, err := c.Random()
+func downloadFile(ctx context.Context, client *http.Client, srcURL, destPath string) error {
+	dest, err := os.Create(destPath)
 	if err != nil {
-		panic(err)
+		return err
+	}
+	defer func() {
+		_ = dest.Close()
+	}()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, srcURL, http.NoBody)
+	if err != nil {
+		return err
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = resp.Body.Close()
+	}()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("unexpected status code %d", resp.StatusCode)
+	}
+
+	if _, err := io.Copy(dest, resp.Body); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func run(ctx context.Context) error {
+	var (
+		client = http.DefaultClient
+		nh     = gnhentai.NewAPI(gnhentai.APIOptions{
+			Client: client,
+		})
+	)
+
+	doujinshi, err := nh.Random(ctx)
+	if err != nil {
+		return err
 	}
 
 	fmt.Println("Downloading", doujinshi.Name())
@@ -23,22 +63,34 @@ func main() {
 		fmt.Println(" - ", tag.Name)
 	}
 
-	format := gnhentai.FormatFromImage(doujinshi.Images.Cover)
-	filename := fmt.Sprintf("cover_%d.%s", doujinshi.ID, format)
+	cover, ok := doujinshi.Images.Cover.Get()
+	if !ok {
+		fmt.Println("No cover found")
+		return nil
+	}
+
+	ext, err := cover.Ext()
+	if err != nil {
+		return err
+	}
+
+	link, err := doujinshi.CoverLink()
+	if err != nil {
+		return err
+	}
+
+	filename := fmt.Sprintf("cover_%s.%s", doujinshi.ID.ToString(), ext)
 	fmt.Println("Downloading cover:", filename)
 
-	cover, err := c.Cover(doujinshi.MediaID, format)
-	if err != nil {
-		panic(err)
-	}
+	return downloadFile(ctx, client, link, filename)
+}
 
-	f, err := os.Create(filename)
-	if err != nil {
-		panic(err)
-	}
+func main() {
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer cancel()
 
-	_, err = io.Copy(f, cover)
-	if err != nil {
-		panic(err)
+	if err := run(ctx); err != nil {
+		fmt.Fprintf(os.Stderr, "error: %+v\n", err)
+		os.Exit(1)
 	}
 }
