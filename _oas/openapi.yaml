@@ -257,7 +257,7 @@ paths:
 components:
   responses:
     Error:
-      description: Error
+      description: Error response.
       content:
         application/json:
           schema:
@@ -265,7 +265,7 @@ components:
             required: [error]
             properties:
               error:
-                type: string
+                $ref: "#/components/schemas/ErrorDetails"
   schemas:
     Tag:
       type: object
@@ -378,3 +378,7 @@ components:
         per_page:
           type: integer
           description: elements on one page
+    ErrorDetails:
+      oneOf:
+        - type: string
+        - type: boolean
