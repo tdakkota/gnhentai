@@ -8,7 +8,9 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/go-faster/errors"
+
 	"github.com/tdakkota/gnhentai"
+	"github.com/tdakkota/gnhentai/nhentaiapi"
 )
 
 // Parser is a simple scraper for nhentai.net.
@@ -16,6 +18,8 @@ type Parser struct {
 	baseURL *url.URL
 	client  *http.Client
 }
+
+var _ gnhentai.Client = (*Parser)(nil)
 
 // ParserOptions defines options for [Parser].
 type ParserOptions struct {
@@ -29,30 +33,28 @@ func (opts *ParserOptions) setDefaults() {
 	}
 }
 
-var defaultBaseURL = errors.Must(url.Parse(gnhentai.BaseNHentaiLink))
-
 // NewParser creates a new [Parser] with options.
 func NewParser(opts ParserOptions) *Parser {
 	opts.setDefaults()
 
 	return &Parser{
-		baseURL: defaultBaseURL,
+		baseURL: nhentaiapi.BaseNHentaiLink,
 		client:  opts.Client,
 	}
 }
 
 // ByID returns book metadata by ID.
-func (c *Parser) ByID(ctx context.Context, id int) (gnhentai.Doujinshi, error) {
-	return c.requestComic(ctx, c.baseURL.JoinPath("g", strconv.Itoa(id), "/"))
+func (c *Parser) ByID(ctx context.Context, id gnhentai.BookID) (*nhentaiapi.Book, error) {
+	return c.requestComic(ctx, c.baseURL.JoinPath("g", id, "/"))
 }
 
 // Random returns random book metadata.
-func (c *Parser) Random(ctx context.Context) (gnhentai.Doujinshi, error) {
+func (c *Parser) Random(ctx context.Context) (*nhentaiapi.Book, error) {
 	return c.requestComic(ctx, c.baseURL.JoinPath("random/"))
 }
 
 // Search books by term.
-func (c *Parser) Search(ctx context.Context, q string, page int) ([]gnhentai.Doujinshi, error) {
+func (c *Parser) Search(ctx context.Context, q string, page int) (*nhentaiapi.SearchResponse, error) {
 	u := c.baseURL.JoinPath("search/")
 
 	query := u.Query()
@@ -66,7 +68,7 @@ func (c *Parser) Search(ctx context.Context, q string, page int) ([]gnhentai.Dou
 }
 
 // SearchByTag searches books by given [gnhentai.Tag].
-func (c *Parser) SearchByTag(ctx context.Context, tag gnhentai.Tag, page int) ([]gnhentai.Doujinshi, error) {
+func (c *Parser) SearchByTag(ctx context.Context, tag nhentaiapi.Tag, page int) (*nhentaiapi.SearchResponse, error) {
 	u := c.baseURL.JoinPath("tag", tag.Name, "/")
 
 	if page >= 2 {
@@ -79,23 +81,23 @@ func (c *Parser) SearchByTag(ctx context.Context, tag gnhentai.Tag, page int) ([
 }
 
 // Related returns related books.
-func (c *Parser) Related(ctx context.Context, id int) ([]gnhentai.Doujinshi, error) {
-	doc, err := c.scrapeHTML(ctx, c.baseURL.JoinPath("g", strconv.Itoa(id), "/"))
+func (c *Parser) Related(ctx context.Context, id gnhentai.BookID) (*nhentaiapi.SearchResponse, error) {
+	doc, err := c.scrapeHTML(ctx, c.baseURL.JoinPath("g", id, "/"))
 	if err != nil {
 		return nil, err
 	}
 	return ParseRelated(doc.Selection)
 }
 
-func (c *Parser) requestComic(ctx context.Context, u *url.URL) (gnhentai.Doujinshi, error) {
+func (c *Parser) requestComic(ctx context.Context, u *url.URL) (*nhentaiapi.Book, error) {
 	doc, err := c.scrapeHTML(ctx, u)
 	if err != nil {
-		return gnhentai.Doujinshi{}, err
+		return nil, err
 	}
 	return ParseComic(doc.Selection)
 }
 
-func (c *Parser) requestSearch(ctx context.Context, u *url.URL) ([]gnhentai.Doujinshi, error) {
+func (c *Parser) requestSearch(ctx context.Context, u *url.URL) (*nhentaiapi.SearchResponse, error) {
 	doc, err := c.scrapeHTML(ctx, u)
 	if err != nil {
 		return nil, err

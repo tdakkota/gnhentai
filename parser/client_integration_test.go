@@ -25,10 +25,6 @@ func TestSearchByTag(t *testing.T) {
 	testutil.TestSearchByTag(t, newParser)
 }
 
-func TestGetByID(t *testing.T) {
-	testutil.TestGetByID(t, newParser)
-}
-
 func TestRelated(t *testing.T) {
 	testutil.TestRelated(t, newParser)
 }

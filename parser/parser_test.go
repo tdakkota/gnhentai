@@ -11,23 +11,24 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/go-faster/sdk/gold"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/tdakkota/gnhentai"
+	"github.com/tdakkota/gnhentai/nhentaiapi"
 )
 
 func Test_parseBaseTag(t *testing.T) {
 	for i, tt := range []struct {
 		html string
-		want gnhentai.Tag
+		want nhentaiapi.Tag
 	}{
 		{
 			`<a href="/group/applique/" class="tag tag-109391 ">applique <span class="count">(2)</span></a>`,
-			gnhentai.Tag{
+			nhentaiapi.Tag{
 				ID:    109391,
-				Count: 2,
+				Count: nhentaiapi.NewOptInt(2),
 				Name:  "applique",
-				URL:   "https://nhentai.net/group/applique/",
+				URL:   nhentaiapi.NewOptString("https://nhentai.net/group/applique/"),
 			},
 		},
 	} {
@@ -47,7 +48,7 @@ func Test_parseBaseTag(t *testing.T) {
 func Test_parseTags(t *testing.T) {
 	for i, tt := range []struct {
 		html string
-		want []gnhentai.Tag
+		want []nhentaiapi.Tag
 	}{
 		{
 			`<span class="tags">
@@ -57,36 +58,36 @@ func Test_parseTags(t *testing.T) {
 			<a href="/tag/big-ass/" class="tag tag-9083 ">big ass <span class="count">(9,317)</span></a>
 			<a href="/tag/webtoon/" class="tag tag-50585 ">webtoon <span class="count">(1,618)</span></a>
 		</span>`,
-			[]gnhentai.Tag{
+			[]nhentaiapi.Tag{
 				{
 					ID:    2937,
-					Count: 101029,
+					Count: nhentaiapi.NewOptInt(101029),
 					Name:  "big breasts",
-					URL:   "https://nhentai.net/tag/big-breasts/",
+					URL:   nhentaiapi.NewOptString("https://nhentai.net/tag/big-breasts/"),
 				},
 				{
 					ID:    20905,
-					Count: 31918,
+					Count: nhentaiapi.NewOptInt(31918),
 					Name:  "full color",
-					URL:   "https://nhentai.net/tag/full-color/",
+					URL:   nhentaiapi.NewOptString("https://nhentai.net/tag/full-color/"),
 				},
 				{
 					ID:    8368,
-					Count: 16230,
+					Count: nhentaiapi.NewOptInt(16230),
 					Name:  "full censorship",
-					URL:   "https://nhentai.net/tag/full-censorship/",
+					URL:   nhentaiapi.NewOptString("https://nhentai.net/tag/full-censorship/"),
 				},
 				{
 					ID:    9083,
-					Count: 9317,
+					Count: nhentaiapi.NewOptInt(9317),
 					Name:  "big ass",
-					URL:   "https://nhentai.net/tag/big-ass/",
+					URL:   nhentaiapi.NewOptString("https://nhentai.net/tag/big-ass/"),
 				},
 				{
 					ID:    50585,
-					Count: 1618,
+					Count: nhentaiapi.NewOptInt(1618),
 					Name:  "webtoon",
-					URL:   "https://nhentai.net/tag/webtoon/",
+					URL:   nhentaiapi.NewOptString("https://nhentai.net/tag/webtoon/"),
 				},
 			},
 		},
@@ -108,7 +109,7 @@ func Test_parseTags(t *testing.T) {
 //go:embed _testdata
 var testdata embed.FS
 
-func TestParse(t *testing.T) {
+func TestParseComic(t *testing.T) {
 	const testType = "comic"
 	testdataDir := path.Join("_testdata", testType)
 	files, err := fs.ReadDir(testdata, testdataDir)
@@ -124,8 +125,14 @@ func TestParse(t *testing.T) {
 			doc, err := goquery.NewDocumentFromReader(data)
 			require.NoError(t, err)
 
-			r, err := parseComic(doc.Selection)
+			r, err := ParseComic(doc.Selection)
 			require.NoError(t, err)
+			assert.NotZero(t, r.ID)
+			assert.NotZero(t, r.MediaID)
+			assert.NotEmpty(t, r.Name())
+			assert.NotEmpty(t, r.Images.Pages)
+			assert.Equal(t, len(r.Images.Pages), r.NumPages.Or(0))
+			assert.NotEmpty(t, r.Tags)
 
 			d, err := json.MarshalIndent(r, "", "\t")
 			require.NoError(t, err)
