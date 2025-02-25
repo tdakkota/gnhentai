@@ -69,7 +69,11 @@ func (c *Parser) Search(ctx context.Context, q string, page int) (*nhentaiapi.Se
 
 // SearchByTag searches books by given [gnhentai.Tag].
 func (c *Parser) SearchByTag(ctx context.Context, tag nhentaiapi.Tag, page int) (*nhentaiapi.SearchResponse, error) {
-	u := c.baseURL.JoinPath("tag", tag.Name, "/")
+	typ := string(tag.Type)
+	if typ == "" {
+		typ = "tag"
+	}
+	u := c.baseURL.JoinPath(typ, tag.Name, "/")
 
 	if page >= 2 {
 		query := u.Query()
