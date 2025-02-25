@@ -24,7 +24,3 @@ func TestSearch(t *testing.T) {
 func TestSearchByTag(t *testing.T) {
 	testutil.TestSearchByTag(t, newClient)
 }
-
-func TestRelated(t *testing.T) {
-	testutil.TestRelated(t, newClient)
-}

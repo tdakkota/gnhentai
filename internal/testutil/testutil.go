@@ -39,7 +39,7 @@ func TestSearch(t *testing.T, constructor func(t *testing.T) gnhentai.Client) {
 	t.Run("FirstPage", func(t *testing.T) {
 		c := constructor(t)
 
-		h, err := c.Search(ctx, "ahegao", 0)
+		h, err := c.Search(ctx, "ahegao", 1)
 		require.NoError(t, err)
 		require.NotEmpty(t, h)
 	})
@@ -62,7 +62,7 @@ func TestSearchByTag(t *testing.T, constructor func(t *testing.T) gnhentai.Clien
 	t.Run("FirstPage", func(t *testing.T) {
 		c := constructor(t)
 
-		h, err := c.SearchByTag(ctx, nhentaiapi.Tag{Name: "milf", ID: 1207}, 0)
+		h, err := c.SearchByTag(ctx, nhentaiapi.Tag{Name: "milf", ID: 1207}, 1)
 		require.NoError(t, err)
 		require.NotEmpty(t, h)
 	})
@@ -78,30 +78,7 @@ func TestSearchByTag(t *testing.T, constructor func(t *testing.T) gnhentai.Clien
 	t.Run("TagDoesNotExist", func(t *testing.T) {
 		c := constructor(t)
 
-		_, err := c.SearchByTag(ctx, nhentaiapi.Tag{Name: "lolkek"}, 0)
+		_, err := c.SearchByTag(ctx, nhentaiapi.Tag{Name: "lolkek"}, 1)
 		require.Error(t, err, "tag does not exist")
-	})
-}
-
-// TestRelated tests [gnhentai.Client.Related].
-func TestRelated(t *testing.T, constructor func(t *testing.T) gnhentai.Client) {
-	Skip(t)
-	t.Helper()
-	ctx := t.Context()
-
-	t.Run("Get", func(t *testing.T) {
-		c := constructor(t)
-
-		d, err := c.Related(ctx, "305329")
-		require.NoError(t, err)
-		require.NotEmpty(t, d.Result)
-
-		t.Log(d.Result[0].Title.English)
-	})
-
-	t.Run("DoesNotExist", func(t *testing.T) {
-		c := constructor(t)
-		_, err := c.Related(ctx, "-100500")
-		require.Error(t, err, "id does not exist")
 	})
 }

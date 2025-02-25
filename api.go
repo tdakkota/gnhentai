@@ -91,15 +91,6 @@ func (c *API) randomPage(ctx context.Context) (string, error) {
 }
 
 // Search books by term.
-func (c *API) Related(ctx context.Context, id BookID) (*nhentaiapi.SearchResponse, error) {
-	r, err := c.api.Related(ctx, nhentaiapi.RelatedParams{BookID: id})
-	if err != nil {
-		return nil, c.mapError(err)
-	}
-	return r, nil
-}
-
-// SearchByTag searches books by given [gnhentai.Tag].
 func (c *API) Search(ctx context.Context, q string, page int) (*nhentaiapi.SearchResponse, error) {
 	r, err := c.api.Search(ctx, nhentaiapi.SearchParams{
 		Query:   q,
@@ -112,7 +103,7 @@ func (c *API) Search(ctx context.Context, q string, page int) (*nhentaiapi.Searc
 	return r, nil
 }
 
-// Related returns related books.
+// SearchByTag searches books by given [nhentaiapi.Tag].
 func (c *API) SearchByTag(ctx context.Context, tag nhentaiapi.Tag, page int) (*nhentaiapi.SearchResponse, error) {
 	r, err := c.api.SearchByTagID(ctx, nhentaiapi.SearchByTagIDParams{
 		TagID:   tag.ID,
