@@ -128,6 +128,16 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 						elem = origElem
 					}
+
+					elem = origElem
+				case 'y': // Prefix: "y/"
+					origElem := elem
+					if l := len("y/"); len(elem) >= l && elem[0:l] == "y/" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
 					// Param: "book_id"
 					// Match until "/"
 					idx := strings.IndexByte(elem, '/')
@@ -138,7 +148,16 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					elem = elem[idx:]
 
 					if len(elem) == 0 {
-						break
+						switch r.Method {
+						case "GET":
+							s.handleGetBookRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "GET")
+						}
+
+						return
 					}
 					switch elem[0] {
 					case '/': // Prefix: "/related"
@@ -164,34 +183,6 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 						}
 
 						elem = origElem
-					}
-
-					elem = origElem
-				case 'y': // Prefix: "y/"
-					origElem := elem
-					if l := len("y/"); len(elem) >= l && elem[0:l] == "y/" {
-						elem = elem[l:]
-					} else {
-						break
-					}
-
-					// Param: "book_id"
-					// Leaf parameter
-					args[0] = elem
-					elem = ""
-
-					if len(elem) == 0 {
-						// Leaf node.
-						switch r.Method {
-						case "GET":
-							s.handleGetBookRequest([1]string{
-								args[0],
-							}, elemIsEscaped, w, r)
-						default:
-							s.notAllowed(w, r, "GET")
-						}
-
-						return
 					}
 
 					elem = origElem
@@ -510,6 +501,16 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 
 						elem = origElem
 					}
+
+					elem = origElem
+				case 'y': // Prefix: "y/"
+					origElem := elem
+					if l := len("y/"); len(elem) >= l && elem[0:l] == "y/" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
 					// Param: "book_id"
 					// Match until "/"
 					idx := strings.IndexByte(elem, '/')
@@ -520,7 +521,18 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 					elem = elem[idx:]
 
 					if len(elem) == 0 {
-						break
+						switch method {
+						case "GET":
+							r.name = GetBookOperation
+							r.summary = "Gets metadata of book"
+							r.operationID = "getBook"
+							r.pathPattern = "/api/gallery/{book_id}"
+							r.args = args
+							r.count = 1
+							return r, true
+						default:
+							return
+						}
 					}
 					switch elem[0] {
 					case '/': // Prefix: "/related"
@@ -538,7 +550,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								r.name = RelatedOperation
 								r.summary = "Search for related comics"
 								r.operationID = "related"
-								r.pathPattern = "/api/galleries/{book_id}/related"
+								r.pathPattern = "/api/gallery/{book_id}/related"
 								r.args = args
 								r.count = 1
 								return r, true
@@ -548,36 +560,6 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						}
 
 						elem = origElem
-					}
-
-					elem = origElem
-				case 'y': // Prefix: "y/"
-					origElem := elem
-					if l := len("y/"); len(elem) >= l && elem[0:l] == "y/" {
-						elem = elem[l:]
-					} else {
-						break
-					}
-
-					// Param: "book_id"
-					// Leaf parameter
-					args[0] = elem
-					elem = ""
-
-					if len(elem) == 0 {
-						// Leaf node.
-						switch method {
-						case "GET":
-							r.name = GetBookOperation
-							r.summary = "Gets metadata of book"
-							r.operationID = "getBook"
-							r.pathPattern = "/api/gallery/{book_id}"
-							r.args = args
-							r.count = 1
-							return r, true
-						default:
-							return
-						}
 					}
 
 					elem = origElem

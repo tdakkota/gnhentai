@@ -49,7 +49,7 @@ type Invoker interface {
 	//
 	// Search for related comics.
 	//
-	// GET /api/galleries/{book_id}/related
+	// GET /api/gallery/{book_id}/related
 	Related(ctx context.Context, params RelatedParams) (*SearchResponse, error)
 	// Search invokes search operation.
 	//
@@ -427,7 +427,7 @@ func (c *Client) sendGetPageThumbnailImage(ctx context.Context, params GetPageTh
 //
 // Search for related comics.
 //
-// GET /api/galleries/{book_id}/related
+// GET /api/gallery/{book_id}/related
 func (c *Client) Related(ctx context.Context, params RelatedParams) (*SearchResponse, error) {
 	res, err := c.sendRelated(ctx, params)
 	return res, err
@@ -437,7 +437,7 @@ func (c *Client) sendRelated(ctx context.Context, params RelatedParams) (res *Se
 
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [3]string
-	pathParts[0] = "/api/galleries/"
+	pathParts[0] = "/api/gallery/"
 	{
 		// Encode "book_id" parameter.
 		e := uri.NewPathEncoder(uri.PathEncoderConfig{

@@ -36,7 +36,7 @@ type Handler interface {
 	//
 	// Search for related comics.
 	//
-	// GET /api/galleries/{book_id}/related
+	// GET /api/gallery/{book_id}/related
 	Related(ctx context.Context, params RelatedParams) (*SearchResponse, error)
 	// Search implements search operation.
 	//

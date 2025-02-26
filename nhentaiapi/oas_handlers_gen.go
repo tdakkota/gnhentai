@@ -417,7 +417,7 @@ func (s *Server) handleGetPageThumbnailImageRequest(args [3]string, argsEscaped 
 //
 // Search for related comics.
 //
-// GET /api/galleries/{book_id}/related
+// GET /api/gallery/{book_id}/related
 func (s *Server) handleRelatedRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
