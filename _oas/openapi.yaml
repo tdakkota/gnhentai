@@ -118,7 +118,7 @@ paths:
         default:
           $ref: "#/components/responses/Error"
 
-  /api/galleries/{book_id}/related:
+  /api/gallery/{book_id}/related:
     get:
       tags:
         - book
