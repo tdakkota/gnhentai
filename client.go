@@ -44,4 +44,7 @@ type Client interface {
 	// SearchByTag searches books by given [Tag].
 	// Note: API client uses [Tag.ID], when Parser uses [Tag.Name] to get metadata, so both fields should not be empty.
 	SearchByTag(ctx context.Context, tag nhentaiapi.Tag, page int) (*nhentaiapi.SearchResponse, error)
+
+	// Related returns related books.
+	Related(ctx context.Context, id BookID) (*nhentaiapi.SearchResponse, error)
 }

@@ -119,3 +119,12 @@ func (c *API) SearchByTag(ctx context.Context, tag nhentaiapi.Tag, page int) (*n
 func (c *API) mapError(err error) error {
 	return err
 }
+
+// Related returns related books.
+func (c *API) Related(ctx context.Context, id BookID) (*nhentaiapi.SearchResponse, error) {
+	r, err := c.api.Related(ctx, nhentaiapi.RelatedParams{BookID: id})
+	if err != nil {
+		return nil, c.mapError(err)
+	}
+	return r, nil
+}
