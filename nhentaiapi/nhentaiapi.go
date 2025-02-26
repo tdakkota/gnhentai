@@ -19,6 +19,8 @@ func (i Image) Ext() (string, error) {
 		return "jpg", nil
 	case "p":
 		return "png", nil
+	case "g":
+		return "gif", nil
 	case "w":
 		return "webp.webp", nil
 	default:
