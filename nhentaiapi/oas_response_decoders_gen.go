@@ -155,7 +155,7 @@ func decodeGetPageCoverImageResponse(resp *http.Response) (res *GetPageCoverImag
 							return err
 						}
 					} else {
-						return validate.ErrFieldRequired
+						return err
 					}
 					return nil
 				}(); err != nil {
@@ -257,7 +257,7 @@ func decodeGetPageImageResponse(resp *http.Response) (res *GetPageImageOKHeaders
 							return err
 						}
 					} else {
-						return validate.ErrFieldRequired
+						return err
 					}
 					return nil
 				}(); err != nil {
@@ -359,7 +359,7 @@ func decodeGetPageThumbnailImageResponse(resp *http.Response) (res *GetPageThumb
 							return err
 						}
 					} else {
-						return validate.ErrFieldRequired
+						return err
 					}
 					return nil
 				}(); err != nil {
